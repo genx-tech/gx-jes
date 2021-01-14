@@ -70,7 +70,7 @@ const OP_REVERSE = [ '$reverse' ];
 const OP_EVAL = [ '$eval', '$apply' ];
 const OP_MERGE = [ '$merge' ];
 const OP_FILTER = [ '$filter', '$select' ];
-const OP_REMAP = [ $remap ];
+const OP_REMAP = [ '$remap' ];
 
 //Condition operation
 const OP_IF = [ '$if' ];
@@ -122,6 +122,7 @@ addManToMap(OP_SORT, ['OP_SORT', false]);
 addManToMap(OP_EVAL, ['OP_EVAL', false]);
 addManToMap(OP_MERGE, ['OP_MERGE', false]);
 addManToMap(OP_FILTER, ['OP_FILTER', false]);
+addManToMap(OP_REMAP, ['OP_REMAP', false]);
 addManToMap(OP_IF, ['OP_IF', false]);
 
 const defaultJesHandlers = {

@@ -39,6 +39,28 @@ describe("unit:utils:expression", function () {
         result[1].should.be.match(/ should be "ng"/);
     });
 
+    it("equal2", function () {
+        let obj = {
+            key1: [ 1, 2, 3 ],
+            key2: [ 1 ]
+        };
+
+        JES.match(obj, {
+            key1: [ 1, 2, 3 ],
+            key2: [ 1 ]
+        })[0].should.be.ok();    
+
+        JES.match(obj, {
+            key1: [ 1, 2 ],
+            key2: [ 1, 3 ]
+        })[0].should.be.not.ok();
+        
+        JES.match(obj, {
+            key1: [ 1, 2 ],
+            key2: [ 1 ]
+        })[0].should.be.not.ok();
+    });
+
     it("mixed", function () {
         let obj = {
             key1: 2000,

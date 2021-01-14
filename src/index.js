@@ -1,6 +1,7 @@
 // JSON Expression Syntax (JES)
 const { _, hasKeyByPath } = require('rk-utils');
 const { ValidationError } = require('@genx/error');
+const remap = require('@genx/data/lib/utils/remap');
 
 //Exception messages
 const OPERATOR_NOT_ALONE = 'Query operator can only be used alone in a stage.';
@@ -69,6 +70,7 @@ const OP_REVERSE = [ '$reverse' ];
 const OP_EVAL = [ '$eval', '$apply' ];
 const OP_MERGE = [ '$merge' ];
 const OP_FILTER = [ '$filter', '$select' ];
+const OP_REMAP = [ $remap ];
 
 //Condition operation
 const OP_IF = [ '$if' ];
@@ -301,6 +303,15 @@ const defaultManipulations = {
 
         return _.filter(left, (value, key) => test(value, 'OP_MATCH', right, jes, formatPrefix(key, prefix)));
     },
+    OP_REMAP: (left, right, jes, prefix, context) => {
+        if (left == null) return null;
+
+        if (typeof left !== "object") {
+            throw new ValidationError(VALUE_NOT_COLLECTION('OP_REMAP'));
+        }
+
+        return remap(left, right);
+    },
     OP_IF: (left, right, jes, prefix, context) => {
         if (!Array.isArray(right)) {
             throw new Error(OPERAND_NOT_ARRAY('OP_IF'));
@@ -377,6 +388,7 @@ const defaultQueryExplanations = {
     OP_EVAL: 'evaluate',
     OP_MERGE: 'merge',
     OP_FILTER: 'filter',
+    OP_REMAP: 'remap',
     OP_IF: 'evaluate if'
 };
 

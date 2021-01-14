@@ -1,6 +1,6 @@
 {
   "name": "@genx/jes",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JSON Expression Syntax (JES)",
   "main": "lib/index.js",
   "publishConfig": {

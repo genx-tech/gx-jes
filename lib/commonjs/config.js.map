@@ -1,0 +1,1 @@
+{"version":3,"sources":["config.js"],"names":["config","locale","module","exports"],"mappings":";;AAAA,IAAMA,MAAM,GAAG;AACXC,EAAAA,MAAM,EAAE;AADG,CAAf;AAIAC,MAAM,CAACC,OAAP,GAAiBH,MAAjB","sourcesContent":["const config = {\n    locale: 'en-US'\n};\n\nmodule.exports = config;"]}

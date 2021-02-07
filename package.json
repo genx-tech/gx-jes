@@ -1,42 +1,176 @@
 {
-  "name": "@genx/jes",
-  "version": "1.0.2",
-  "description": "JSON Expression Syntax (JES)",
-  "main": "lib/index.js",
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "doc": "jsdoc -c jsdoc.json -t ./node_modules/ink-docstrap/template -R README.md -d './docs' -r --verbose ./src",
-    "bulid:clean": "rm -rf lib",
-    "test": "mocha --recursive src/**/*.spec.js",
-    "cover": "nyc --reporter=html --reporter=text mocha --recursive src/**/*.spec.js",
-    "build": "npm run bulid:clean && NODE_ENV=development babel src -d lib --copy-files && del lib/**/__test__",
-    "build:prod": "npm run bulid:clean && NODE_ENV=production babel src -d lib --copy-files && del lib/**/__test__"
-  },
-  "author": "Rockie Guo <rockie@kitmi.com.au>",
-  "license": "MIT",
-  "repository": "https://github.com/genx-tech/gx-jes.git",
-  "bugs": {
-    "url": "https://github.com/genx-tech/gx-jes/issues"
-  },
-  "keywords": [
-    "gen-x",
-    "json",
-    "expression"
-  ],
-  "mocha": {
-    "require": [
-      "@babel/register",
-      "should"
+    "name": "@genx/jes",
+    "version": "1.0.2",
+    "description": "JSON Expression Syntax (JES)",
+    "main": "lib/commonjs/index.js",
+    "module": "lib/module/index.js",
+    "react-native": "src/index.js",
+    "files": [
+        "lib/",
+        "src/"
     ],
-    "timeout": 30000
-  },
-  "dependencies": {
-    "@genx/error": "^1.0.2"
-  },
-  "devDependencies": {
-    "ink-docstrap": "^1.3.2",
-    "jsdoc": "^3.6.6"
-  }
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "doc": "jsdoc -c jsdoc.json -t ./node_modules/ink-docstrap/template -R README.md -d './docs' -r --verbose ./src",
+        "clean": "rm -rf lib",
+        "test": "mocha --recursive src/**/*.spec.js",
+        "cover": "nyc --reporter=html --reporter=text mocha --recursive src/**/*.spec.js",
+        "prettier": "prettier --write .",
+        "lint": "eslint \"**/*.js\"",
+        "build": "bob build",
+        "release": "release-it",
+        "bundle": "rollup --config"
+    },
+    "author": "Rockie Guo <rockie@kitmi.com.au>",
+    "license": "MIT",
+    "repository": "https://github.com/genx-tech/gx-jes.git",
+    "bugs": {
+        "url": "https://github.com/genx-tech/gx-jes/issues"
+    },
+    "keywords": [
+        "gen-x",
+        "json",
+        "expression"
+    ],
+    "mocha": {
+        "require": [
+            "@babel/register",
+            "should"
+        ],
+        "timeout": 30000
+    },
+    "eslintConfig": {
+        "extends": [
+            "eslint:recommended"
+        ],
+        "env": {
+            "browser": true,
+            "node": true,
+            "amd": true,
+            "es6": true,
+            "es2017": true,
+            "es2020": true,
+            "es2021": true
+        },
+        "parser": "@babel/eslint-parser",
+        "parserOptions": {
+            "sourceType": "module",
+            "allowImportExportEverywhere": false,
+            "ecmaFeatures": {
+                "globalReturn": false
+            },
+            "babelOptions": {
+                "configFile": "./babel.config.js"
+            }
+        },
+        "rules": {
+            "no-unused-vars": "warn"
+        }
+    },
+    "dependencies": {
+        "@genx/error": "*",
+        "@genx/july": "*"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.12.13",
+        "@babel/eslint-parser": "^7.12.13",
+        "@babel/eslint-plugin": "^7.12.13",
+        "@babel/plugin-proposal-class-properties": "^7.12.1",
+        "@commitlint/config-conventional": "^11.0.0",
+        "@release-it/conventional-changelog": "^2.0.0",
+        "@rollup/plugin-babel": "^5.2.3",
+        "@rollup/plugin-node-resolve": "^11.1.1",
+        "commitlint": "^11.0.0",
+        "core-js": "^3.8.3",
+        "del-cli": "^3.0.1",
+        "eslint": "^7.2.0",
+        "eslint-config-prettier": "^7.0.0",
+        "eslint-plugin-prettier": "^3.1.3",
+        "husky": "^4.2.5",
+        "ink-docstrap": "^1.3.2",
+        "jsdoc": "^3.6.6",
+        "mocha": "^8.2.1",
+        "nyc": "^15.1.0",
+        "prettier": "^2.0.5",
+        "react-native-builder-bob": "^0.17.1",
+        "release-it": "^14.2.2",
+        "rollup": "^2.37.0",
+        "rollup-plugin-terser": "^7.0.2",
+        "should": "^13.2.3"
+    },
+    "husky": {
+        "hooks": {
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+            "pre-commit": "npm run lint"
+        }
+    },
+    "commitlint": {
+        "extends": [
+            "@commitlint/config-conventional"
+        ]
+    },
+    "release-it": {
+        "git": {
+            "commitMessage": "chore: release ${version}",
+            "tagName": "v${version}"
+        },
+        "npm": {
+            "publish": true
+        },
+        "github": {
+            "release": true
+        },
+        "plugins": {
+            "@release-it/conventional-changelog": {
+                "preset": "angular"
+            }
+        }
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "eslintIgnore": [
+        "/node_modules",
+        "/lib",
+        "/test",
+        "/docs",
+        "/**/__test__",
+        "babel.config.js"
+    ],
+    "prettier": {
+        "quoteProps": "consistent",
+        "singleQuote": true,
+        "tabWidth": 4,
+        "trailingComma": "es5",
+        "useTabs": false
+    },
+    "react-native-builder-bob": {
+        "source": "src",
+        "output": "lib",
+        "targets": [
+            [
+                "commonjs",
+                {
+                    "configFile": true
+                }
+            ],
+            [
+                "module",
+                {
+                    "configFile": true
+                }
+            ]
+        ]
+    }
 }

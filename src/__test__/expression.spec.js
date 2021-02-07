@@ -1,13 +1,13 @@
-const JES = require("../index");
+const JES = require('../index');
 
-describe("unit:utils:expression", function () {
-    it("equal", function () {
+describe('unit:utils:expression', function () {
+    it('equal', function () {
         let obj = {
             key1: 2000,
-            key2: "ok",
+            key2: 'ok',
             key3: {
                 key1: 20,
-                key2: "ok",
+                key2: 'ok',
             },
             key4: null,
             key5: false,
@@ -16,10 +16,10 @@ describe("unit:utils:expression", function () {
 
         JES.match(obj, {
             key1: 2000,
-            key2: "ok",
+            key2: 'ok',
             key3: {
                 key1: 20,
-                key2: "ok",
+                key2: 'ok',
             },
             key4: null,
             key5: false,
@@ -29,53 +29,53 @@ describe("unit:utils:expression", function () {
         let result = JES.match(obj, {
             key1: 2001,
         });
-        result[0].should.not.be.ok();
+        result[0].should.not.be.ok();        
         result[1].should.be.match(/ should be 2001/);
 
         result = JES.match(obj, {
-            key2: "ng",
+            key2: 'ng',
         });
         result[0].should.not.be.ok();
         result[1].should.be.match(/ should be "ng"/);
     });
 
-    it("equal2", function () {
+    it('equal2', function () {
         let obj = {
-            key1: [ 1, 2, 3 ],
-            key2: [ 1 ]
+            key1: [1, 2, 3],
+            key2: [1],
         };
 
         JES.match(obj, {
-            key1: [ 1, 2, 3 ],
-            key2: [ 1 ]
-        })[0].should.be.ok();    
+            key1: [1, 2, 3],
+            key2: [1],
+        })[0].should.be.ok();
 
         JES.match(obj, {
-            key1: [ 1, 2 ],
-            key2: [ 1, 3 ]
+            key1: [1, 2],
+            key2: [1, 3],
         })[0].should.be.not.ok();
-        
+
         JES.match(obj, {
-            key1: [ 1, 2 ],
-            key2: [ 1 ]
+            key1: [1, 2],
+            key2: [1],
         })[0].should.be.not.ok();
     });
 
-    it("mixed", function () {
+    it('mixed', function () {
         let obj = {
             key1: 2000,
             key11: 2000,
             key12: 2000,
             key13: 2000,
 
-            key2: "ok",
-            key21: "ok",
-            key22: "ok",
-            key23: "ok",
+            key2: 'ok',
+            key21: 'ok',
+            key22: 'ok',
+            key23: 'ok',
 
             key3: {
                 key1: 20,
-                key2: "ok",
+                key2: 'ok',
             },
             key4: null,
             key5: false,
@@ -88,31 +88,31 @@ describe("unit:utils:expression", function () {
             key12: { $lt: 3000 },
             key13: { $lte: 2000 },
 
-            key2: { $eq: "ok" },
-            key21: { $neq: "ng" },
+            key2: { $eq: 'ok' },
+            key21: { $neq: 'ng' },
 
-            key22: { $in: ["ok", "ng"] },
-            key23: { $nin: ["ng1", "ng2"] },
+            key22: { $in: ['ok', 'ng'] },
+            key23: { $nin: ['ng1', 'ng2'] },
 
             key4: { $exists: false },
         }).should.be.eql([true]);
     });
 
-    it("jes", function () {
+    it('jes', function () {
         let obj = {
             key1: 2000,
             key11: 2000,
             key12: 2000,
             key13: 2000,
 
-            key2: "ok",
-            key21: "ok",
-            key22: "ok",
-            key23: "ok",
+            key2: 'ok',
+            key21: 'ok',
+            key22: 'ok',
+            key23: 'ok',
 
             key3: {
                 key1: 20,
-                key2: "ok",
+                key2: 'ok',
             },
             key4: null,
             key5: false,
@@ -127,20 +127,20 @@ describe("unit:utils:expression", function () {
             key13: { $lte: 2000 },
         })
             .match({
-                key2: { $eq: "ok" },
-                key21: { $neq: "ng" },
+                key2: { $eq: 'ok' },
+                key21: { $neq: 'ng' },
 
-                key22: { $in: ["ok", "ng"] },
-                key23: { $nin: ["ng1", "ng2"] },
+                key22: { $in: ['ok', 'ng'] },
+                key23: { $nin: ['ng1', 'ng2'] },
 
                 key4: { $exists: false },
-                key2: { $is: "string" },
+                key2: { $is: 'string' },
             })
             .match({
                 key3: {
                     key1: 20,
                     key2: {
-                        $neq: "ng",
+                        $neq: 'ng',
                     },
                 },
             });
@@ -183,18 +183,18 @@ describe("unit:utils:expression", function () {
 
         should.throws(() => {
             jeso.match({
-                key1: { $is: "string" },
+                key1: { $is: 'string' },
             });
         }, 'ValidationError: The type of "key1" should be "string".');
 
         should.throws(() => {
             jeso.match({
-                key3: { key2: "ng" },
+                key3: { key2: 'ng' },
             });
         }, 'ValidationError: "key3.key2" should be "ng".');
     });
 
-    it("any", function () {
+    it('any', function () {
         let obj = {
             key1: 2000,
             key11: 2000,
@@ -215,7 +215,7 @@ describe("unit:utils:expression", function () {
         }, 'ValidationError: The value should match any of these rules: [{"key1":3000},{"key11":3000}].');
     });
 
-    it("matchWithQuery", function () {
+    it('matchWithQuery', function () {
         let obj = {
             key1: 2000,
             key11: 2000,
@@ -228,12 +228,12 @@ describe("unit:utils:expression", function () {
         jeso.match({
             $$size: 4,
             key1: {
-                $$type: "integer",
+                $$type: 'integer',
             },
         });
 
         jeso.match({
-            "|>$$add": [
+            '|>$$add': [
                 200,
                 {
                     key1: 2200,
@@ -246,7 +246,7 @@ describe("unit:utils:expression", function () {
 
         should.throws(() => {
             jeso.match({
-                "|>$$add": [200, obj],
+                '|>$$add': [200, obj],
             });
         }, 'ValidationError: The query "_.each(->add(?)).key1" should be 2000, but 2200 given.');
 
@@ -261,7 +261,7 @@ describe("unit:utils:expression", function () {
         }, 'ValidationError: The query "keys().size()" should not be 4, but 4 given.');
     });
 
-    it("eval", function () {
+    it('eval', function () {
         let obj = {
             key1: 2000,
             key11: 2000,
@@ -273,12 +273,12 @@ describe("unit:utils:expression", function () {
 
         const pipelined = jeso.evaluate([
             {
-                "|>$add": 100,
+                '|>$add': 100,
             },
             {
-                "|>$subtract": 200,
+                '|>$subtract': 200,
             },
-            "$sum",
+            '$sum',
         ]);
 
         pipelined.should.be.exactly(7600);
@@ -305,24 +305,24 @@ describe("unit:utils:expression", function () {
         });
 
         jeso.update([
-            "$sum",
+            '$sum',
             {
                 $add: 1,
             },
         ]).value.should.be.exactly(204021);
     });
 
-    it("eval array", function () {
+    it('eval array', function () {
         let obj = {
-            keep: "keep",
+            keep: 'keep',
             items: [
-                { name: "Jack", score: 60 },
-                { name: "Bob", score: 40 },
-                { name: "Jane", score: 80 },
-                { name: "Peter", score: 100 },
+                { name: 'Jack', score: 60 },
+                { name: 'Bob', score: 40 },
+                { name: 'Jane', score: 80 },
+                { name: 'Peter', score: 100 },
             ],
-            ignored: "ingored",
-            exlcluded: "exlcluded",
+            ignored: 'ingored',
+            exlcluded: 'exlcluded',
         };
 
         let jeso = new JES(obj);
@@ -330,18 +330,18 @@ describe("unit:utils:expression", function () {
         const pipelined = jeso.evaluate({
             keep: true,
             excluded: false,
-            newItem: { $set: "new" },
+            newItem: { $set: 'new' },
             highestScore: [
-                "$$CURRENT.items",
+                '$$CURRENT.items',
                 {
-                    $sortBy: "score",
+                    $sortBy: 'score',
                 },
-                "$reverse",
+                '$reverse',
                 {
                     $nth: 0,
                 },
                 {
-                    $of: "score",
+                    $of: 'score',
                 },
             ],
         });
@@ -353,107 +353,107 @@ describe("unit:utils:expression", function () {
         should.not.exist(pipelined.items);
         should.not.exist(pipelined.ignored);
 
-        pipelined.newItem.should.be.exactly("new");
+        pipelined.newItem.should.be.exactly('new');
         pipelined.highestScore.should.be.exactly(100);
     });
 
-    it("transform collection", function () {
+    it('transform collection', function () {
         let array = [
             {
-                user: 100,
-                agency: 1,
-                ":user": { email: "email1", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'user': 100,
+                'agency': 1,
+                ':user': { email: 'email1', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                user: 101,
-                agency: 1,
-                ":user": { email: "email2", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'user': 101,
+                'agency': 1,
+                ':user': { email: 'email2', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                user: 102,
-                agency: 1,
-                ":user": { email: "email3", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'user': 102,
+                'agency': 1,
+                ':user': { email: 'email3', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                user: 103,
-                agency: 2,
-                ":user": { email: "email4", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'user': 103,
+                'agency': 2,
+                ':user': { email: 'email4', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
             {
-                user: 104,
-                agency: 2,
-                ":user": { email: "email5", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'user': 104,
+                'agency': 2,
+                ':user': { email: 'email5', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
         ];
 
         let transformed = JES.evaluate(array, {
-            "|>$apply": {
-                user: ["$$CURRENT.:user", { $pick: ["email"] }],
-                agency: ["$$CURRENT.:agency", { $pick: ["name"] }],
+            '|>$apply': {
+                user: ['$$CURRENT.:user', { $pick: ['email'] }],
+                agency: ['$$CURRENT.:agency', { $pick: ['name'] }],
             },
         });
 
         transformed.should.be.eql([
-            { user: { email: "email1" }, agency: { name: "agency1" } },
-            { user: { email: "email2" }, agency: { name: "agency1" } },
-            { user: { email: "email3" }, agency: { name: "agency1" } },
-            { user: { email: "email4" }, agency: { name: "agency2" } },
-            { user: { email: "email5" }, agency: { name: "agency2" } },
+            { user: { email: 'email1' }, agency: { name: 'agency1' } },
+            { user: { email: 'email2' }, agency: { name: 'agency1' } },
+            { user: { email: 'email3' }, agency: { name: 'agency1' } },
+            { user: { email: 'email4' }, agency: { name: 'agency2' } },
+            { user: { email: 'email5' }, agency: { name: 'agency2' } },
         ]);
     });
 
-    it("transform collection - merge", function () {
+    it('transform collection - merge', function () {
         let array = [
             {
-                user: 100,
-                agency: 1,
-                ":user": { email: "email1", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'user': 100,
+                'agency': 1,
+                ':user': { email: 'email1', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                user: 101,
-                agency: 1,
-                ":user": { email: "email2", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'user': 101,
+                'agency': 1,
+                ':user': { email: 'email2', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                user: 102,
-                agency: 1,
-                ":user": { email: "email3", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'user': 102,
+                'agency': 1,
+                ':user': { email: 'email3', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                user: 103,
-                agency: 2,
-                ":user": { email: "email4", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'user': 103,
+                'agency': 2,
+                ':user': { email: 'email4', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
             {
-                user: 104,
-                agency: 2,
-                ":user": { email: "email5", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'user': 104,
+                'agency': 2,
+                ':user': { email: 'email5', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
         ];
 
         let transformed = JES.evaluate(array, {
-            "|>$apply": {
+            '|>$apply': {
                 $merge: [
                     {
                         $pick: {
                             $not: {
-                                $startWith: ":",
+                                $startWith: ':',
                             },
                         },
                     },
                     {
-                        "@user": ["$$CURRENT.:user", { $pick: ["email"] }],
-                        "@agency": ["$$CURRENT.:agency", { $pick: ["name"] }],
+                        '@user': ['$$CURRENT.:user', { $pick: ['email'] }],
+                        '@agency': ['$$CURRENT.:agency', { $pick: ['name'] }],
                     },
                 ],
             },
@@ -461,159 +461,162 @@ describe("unit:utils:expression", function () {
 
         transformed.should.be.eql([
             {
-              user: 100,
-              agency: 1,
-              '@user': { email: 'email1' },
-              '@agency': { name: 'agency1' }
+                'user': 100,
+                'agency': 1,
+                '@user': { email: 'email1' },
+                '@agency': { name: 'agency1' },
             },
             {
-              user: 101,
-              agency: 1,
-              '@user': { email: 'email2' },
-              '@agency': { name: 'agency1' }
+                'user': 101,
+                'agency': 1,
+                '@user': { email: 'email2' },
+                '@agency': { name: 'agency1' },
             },
             {
-              user: 102,
-              agency: 1,
-              '@user': { email: 'email3' },
-              '@agency': { name: 'agency1' }
+                'user': 102,
+                'agency': 1,
+                '@user': { email: 'email3' },
+                '@agency': { name: 'agency1' },
             },
             {
-              user: 103,
-              agency: 2,
-              '@user': { email: 'email4' },
-              '@agency': { name: 'agency2' }
+                'user': 103,
+                'agency': 2,
+                '@user': { email: 'email4' },
+                '@agency': { name: 'agency2' },
             },
             {
-              user: 104,
-              agency: 2,
-              '@user': { email: 'email5' },
-              '@agency': { name: 'agency2' }
-            }
-          ]);
+                'user': 104,
+                'agency': 2,
+                '@user': { email: 'email5' },
+                '@agency': { name: 'agency2' },
+            },
+        ]);
     });
 
-    it("pick & omit by jes", function () {
+    it('pick & omit by jes', function () {
         let array = [
             {
-                id: 1,
-                user: 100,
-                agency: 1,
-                ":user": { email: "email1", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'id': 1,
+                'user': 100,
+                'agency': 1,
+                ':user': { email: 'email1', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                id: 2,
-                user: 101,
-                agency: 1,
-                ":user": { email: "email2", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'id': 2,
+                'user': 101,
+                'agency': 1,
+                ':user': { email: 'email2', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                id: 3,
-                user: 102,
-                agency: 1,
-                ":user": { email: "email3", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'id': 3,
+                'user': 102,
+                'agency': 1,
+                ':user': { email: 'email3', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                id: 4,
-                user: 103,
-                agency: 2,
-                ":user": { email: "email4", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'id': 4,
+                'user': 103,
+                'agency': 2,
+                ':user': { email: 'email4', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
             {
-                id: 5,
-                user: 104,
-                agency: 2,
-                ":user": { email: "email5", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'id': 5,
+                'user': 104,
+                'agency': 2,
+                ':user': { email: 'email5', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
         ];
 
         let transformed = JES.evaluate(array, {
-            "|>$apply": [
+            '|>$apply': [
                 {
                     $pick: {
                         $not: {
-                            $startWith: ":",
+                            $startWith: ':',
                         },
                     },
-                },                
-                {
-                    $addItem: [ "$test", "$$CURRENT.id" ]
                 },
                 {
-                    $omit: [ 'id' ],
-                }
+                    $addItem: ['$test', '$$CURRENT.id'],
+                },
+                {
+                    $omit: ['id'],
+                },
             ],
         });
 
         transformed.should.be.eql([
-            { user: 100, agency: 1, '$test': 1 },
-            { user: 101, agency: 1, '$test': 2  },
-            { user: 102, agency: 1, '$test': 3  },
-            { user: 103, agency: 2, '$test': 4  },
-            { user: 104, agency: 2, '$test': 5  },
+            { user: 100, agency: 1, $test: 1 },
+            { user: 101, agency: 1, $test: 2 },
+            { user: 102, agency: 1, $test: 3 },
+            { user: 103, agency: 2, $test: 4 },
+            { user: 104, agency: 2, $test: 5 },
         ]);
     });
 
     it('filter', function () {
         let array = [
             {
-                id: 1,
-                user: 100,
-                agency: 1,
-                ":user": { email: "email1", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'id': 1,
+                'user': 100,
+                'agency': 1,
+                ':user': { email: 'email1', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                id: 2,
-                user: 101,
-                agency: 1,
-                ":user": { email: "email2", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'id': 2,
+                'user': 101,
+                'agency': 1,
+                ':user': { email: 'email2', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                id: 3,
-                user: 102,
-                agency: 1,
-                ":user": { email: "email3", other: "any" },
-                ":agency": { name: "agency1", other: "any" },
+                'id': 3,
+                'user': 102,
+                'agency': 1,
+                ':user': { email: 'email3', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
             },
             {
-                id: 4,
-                user: 103,
-                agency: 2,
-                ":user": { email: "email4", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'id': 4,
+                'user': 103,
+                'agency': 2,
+                ':user': { email: 'email4', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
             {
-                id: 5,
-                user: 104,
-                agency: 2,
-                ":user": { email: "email5", other: "any" },
-                ":agency": { name: "agency2", other: "any" },
+                'id': 5,
+                'user': 104,
+                'agency': 2,
+                ':user': { email: 'email5', other: 'any' },
+                ':agency': { name: 'agency2', other: 'any' },
             },
         ];
 
-        let transformed = JES.evaluate(array, [{
-            $select: {
-                user: {
-                    $gte: 102
-                }
-            }
-        }, {
-            "|>$omit": {
-                $startWith: ':'
-            }
-        }]);
+        let transformed = JES.evaluate(array, [
+            {
+                $select: {
+                    user: {
+                        $gte: 102,
+                    },
+                },
+            },
+            {
+                '|>$omit': {
+                    $startWith: ':',
+                },
+            },
+        ]);
 
         transformed.should.be.eql([
             { id: 3, user: 102, agency: 1 },
             { id: 4, user: 103, agency: 2 },
-            { id: 5, user: 104, agency: 2 }
-          ]);
+            { id: 5, user: 104, agency: 2 },
+        ]);
     });
 });

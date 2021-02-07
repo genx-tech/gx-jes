@@ -1,0 +1,9 @@
+/node_modules
+/lib
+/dist
+/test
+/patches
+/docs
+/**/__test__
+/.nyc_output
+/coverage

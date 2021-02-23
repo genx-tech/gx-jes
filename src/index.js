@@ -22,8 +22,12 @@ const _map = require('lodash/map');
 const _mapValues = require('lodash/mapValues');
 const _find = require('lodash/find');
 const _findIndex = require('lodash/findIndex');
-const { ValidationError } = require('@genx/error');
+
+const { ValidationError, InvalidArgument } = require('@genx/error');
 const { remap, isPlainObject } = require('@genx/july');
+
+const PFX_FOR_EACH = '|>'; // map each
+const PFX_WITH_ANY = '|*'; // with any
 
 const config = require('./config');
 
@@ -34,15 +38,12 @@ if (!config.messages) {
 
 const MSG = config.messages;
 
-const formatQuery = (opMeta) =>
-    `${MSG.queryOperators[opMeta[0]]}(${opMeta[1] ? '' : '?'})`;
-
-//Validation operator
+//Validators
 const OP_EQUAL = ['$eq', '$eql', '$equal'];
 const OP_NOT_EQUAL = ['$ne', '$neq', '$notEqual'];
 const OP_NOT = ['$not'];
 const OP_GREATER_THAN = ['$gt', '$>', '$greaterThan'];
-const OP_GREATER_THAN_OR_EQUAL = ['$gte', '$<=', '$greaterThanOrEqual'];
+const OP_GREATER_THAN_OR_EQUAL = ['$gte', '$>=', '$greaterThanOrEqual'];
 const OP_LESS_THAN = ['$lt', '$<', '$lessThan'];
 const OP_LESS_THAN_OR_EQUAL = ['$lte', '$<=', '$lessThanOrEqual'];
 
@@ -56,19 +57,21 @@ const OP_HAS_KEYS = ['$hasKey', '$hasKeys', '$withKey', '$withKeys'];
 const OP_START_WITH = ['$startWith', '$startsWith'];
 const OP_END_WITH = ['$endWith', '$endsWith'];
 
-//Query & aggregate operator
+//OP_EVAL
+
+//Query & aggregate processors
 const OP_SIZE = ['$size', '$length', '$count'];
 const OP_SUM = ['$sum', '$total'];
 const OP_KEYS = ['$keys'];
 const OP_VALUES = ['$values'];
 const OP_GET_TYPE = ['$type'];
 
-//Manipulate operation
+//Manipulate processors
 const OP_ADD = ['$add', '$plus', '$inc'];
 const OP_SUB = ['$sub', '$subtract', '$minus', '$dec'];
 const OP_MUL = ['$mul', '$multiply', '$times'];
 const OP_DIV = ['$div', '$divide'];
-const OP_SET = ['$set', '$='];
+const OP_SET = ['$set', '$=', '$value'];
 const OP_ADD_ITEM = ['$addItem', '$override'];
 
 const OP_PICK = ['$pick'];
@@ -83,198 +86,232 @@ const OP_MERGE = ['$merge'];
 const OP_FILTER = ['$filter', '$select']; // filter by value
 const OP_REMAP = ['$remap'];
 
-//Condition operation
+//Condition processors
 const OP_IF = ['$if'];
 
-const PFX_FOR_EACH = '|>'; // map each
-const PFX_WITH_ANY = '|*'; // with any
+config.addValidatorToMap(OP_EQUAL, 'OP_EQUAL', (left, right) =>
+    _isEqual(left, right)
+);
+config.addValidatorToMap(
+    OP_NOT_EQUAL,
+    'OP_NOT_EQUAL',
+    (left, right) => !_isEqual(left, right)
+);
+config.addValidatorToMap(
+    OP_NOT,
+    'OP_NOT',
+    (left, ...args) => !test(left, 'OP_MATCH', ...args)
+);
+config.addValidatorToMap(
+    OP_GREATER_THAN,
+    'OP_GREATER_THAN',
+    (left, right) => left > right
+);
+config.addValidatorToMap(
+    OP_GREATER_THAN_OR_EQUAL,
+    'OP_GREATER_THAN_OR_EQUAL',
+    (left, right) => left >= right
+);
+config.addValidatorToMap(
+    OP_LESS_THAN,
+    'OP_LESS_THAN',
+    (left, right) => left < right
+);
+config.addValidatorToMap(
+    OP_LESS_THAN_OR_EQUAL,
+    'OP_LESS_THAN_OR_EQUAL',
+    (left, right) => left <= right
+);
+config.addValidatorToMap(OP_IN, 'OP_IN', (left, right) => {
+    if (right == null) return false;
+    if (!Array.isArray(right)) {
+        throw new InvalidArgument(MSG.OPERAND_NOT_ARRAY('OP_IN'));
+    }
 
-const MapOfOps = new Map();
-const addOpToMap = (tokens, tag) =>
-    tokens.forEach((token) => MapOfOps.set(token, tag));
-addOpToMap(OP_EQUAL, 'OP_EQUAL');
-addOpToMap(OP_NOT_EQUAL, 'OP_NOT_EQUAL');
-addOpToMap(OP_NOT, 'OP_NOT');
-addOpToMap(OP_GREATER_THAN, 'OP_GREATER_THAN');
-addOpToMap(OP_GREATER_THAN_OR_EQUAL, 'OP_GREATER_THAN_OR_EQUAL');
-addOpToMap(OP_LESS_THAN, 'OP_LESS_THAN');
-addOpToMap(OP_LESS_THAN_OR_EQUAL, 'OP_LESS_THAN_OR_EQUAL');
-addOpToMap(OP_IN, 'OP_IN');
-addOpToMap(OP_NOT_IN, 'OP_NOT_IN');
-addOpToMap(OP_EXISTS, 'OP_EXISTS');
-addOpToMap(OP_MATCH, 'OP_MATCH');
-addOpToMap(OP_MATCH_ANY, 'OP_MATCH_ANY');
-addOpToMap(OP_TYPE, 'OP_TYPE');
-addOpToMap(OP_HAS_KEYS, 'OP_HAS_KEYS');
-addOpToMap(OP_START_WITH, 'OP_START_WITH');
-addOpToMap(OP_END_WITH, 'OP_END_WITH');
+    const equal = config.getValidator('OP_EQUAL');
+    return right.find((element) => equal(left, element));
+});
+config.addValidatorToMap(OP_NOT_IN, 'OP_NOT_IN', (left, right) => {
+    if (right == null) return true;
+    if (!Array.isArray(right)) {
+        throw new InvalidArgument(MSG.OPERAND_NOT_ARRAY('OP_NOT_IN'));
+    }
 
-const MapOfMans = new Map();
-const addManToMap = (tokens, tag) =>
-    tokens.forEach((token) => MapOfMans.set(token, tag));
-// [ <op name>, <unary> ]
-addManToMap(OP_SIZE, ['OP_SIZE', true]);
-addManToMap(OP_SUM, ['OP_SUM', true]);
-addManToMap(OP_KEYS, ['OP_KEYS', true]);
-addManToMap(OP_VALUES, ['OP_VALUES', true]);
-addManToMap(OP_GET_TYPE, ['OP_GET_TYPE', true]);
-addManToMap(OP_REVERSE, ['OP_REVERSE', true]);
+    const notEqual = config.getValidator('OP_NOT_EQUAL');
 
-addManToMap(OP_ADD, ['OP_ADD', false]);
-addManToMap(OP_SUB, ['OP_SUB', false]);
-addManToMap(OP_MUL, ['OP_MUL', false]);
-addManToMap(OP_DIV, ['OP_DIV', false]);
-addManToMap(OP_SET, ['OP_SET', false]);
-addManToMap(OP_ADD_ITEM, ['OP_ADD_ITEM', false]);
-addManToMap(OP_PICK, ['OP_PICK', false]);
-addManToMap(OP_GET_BY_INDEX, ['OP_GET_BY_INDEX', false]);
-addManToMap(OP_GET_BY_KEY, ['OP_GET_BY_KEY', false]);
-addManToMap(OP_OMIT, ['OP_OMIT', false]);
-addManToMap(OP_GROUP, ['OP_GROUP', false]);
-addManToMap(OP_SORT, ['OP_SORT', false]);
-addManToMap(OP_EVAL, ['OP_EVAL', false]);
-addManToMap(OP_MERGE, ['OP_MERGE', false]);
-addManToMap(OP_FILTER, ['OP_FILTER', false]);
-addManToMap(OP_REMAP, ['OP_REMAP', false]);
-addManToMap(OP_IF, ['OP_IF', false]);
+    return right.every((element) => notEqual(left, element));
+});
+config.addValidatorToMap(OP_EXISTS, 'OP_EXISTS', (left, right) => {
+    if (typeof right !== 'boolean') {
+        throw new InvalidArgument(MSG.OPERAND_NOT_BOOL('OP_EXISTS'));
+    }
 
-const defaultJesHandlers = {
-    OP_EQUAL: (left, right) => _isEqual(left, right),
-    OP_NOT_EQUAL: (left, right) => !_isEqual(left, right),
-    OP_NOT: (left, ...args) => !test(left, 'OP_MATCH', ...args),
-    OP_GREATER_THAN: (left, right) => left > right,
-    OP_GREATER_THAN_OR_EQUAL: (left, right) => left >= right,
-    OP_LESS_THAN: (left, right) => left < right,
-    OP_LESS_THAN_OR_EQUAL: (left, right) => left <= right,
-    OP_IN: (left, right) => {
-        if (right == null) return false;
-        if (!Array.isArray(right)) {
-            throw new Error(MSG.OPERAND_NOT_ARRAY('OP_IN'));
-        }
-
-        return right.find((element) =>
-            defaultJesHandlers.OP_EQUAL(left, element)
-        );
-    },
-    OP_NOT_IN: (left, right) => {
-        if (right == null) return true;
-        if (!Array.isArray(right)) {
-            throw new Error(MSG.OPERAND_NOT_ARRAY('OP_NOT_IN'));
-        }
-
-        return right.every((element) =>
-            defaultJesHandlers.OP_NOT_EQUAL(left, element)
-        );
-    },
-    OP_EXISTS: (left, right) => {
-        if (typeof right !== 'boolean') {
-            throw new Error(MSG.OPERAND_NOT_BOOL('OP_EXISTS'));
-        }
-
-        return right ? left != null : left == null;
-    },
-    OP_TYPE: (left, right) => {
-        if (typeof right !== 'string') {
-            throw new Error(MSG.OPERAND_NOT_STRING('OP_TYPE'));
-        }
-
-        right = right.toLowerCase();
-
-        if (right === 'array') {
-            return Array.isArray(left);
-        }
-
-        if (right === 'integer') {
-            return _isInteger(left);
-        }
-
-        if (right === 'text') {
-            return typeof left === 'string';
-        }
-
-        return typeof left === right;
-    },
-    OP_MATCH: (left, right, jes, prefix) => {
+    return right ? left != null : left == null;
+});
+config.addValidatorToMap(
+    OP_MATCH,
+    'OP_MATCH',
+    (left, right, prefix, context) => {
         if (Array.isArray(right)) {
             return right.every((rule) => {
-                const r = match(left, rule, jes, prefix);
+                const r = match(left, rule, prefix);
                 return r[0];
             });
         }
 
-        const r = match(left, right, jes, prefix);
-        return r[0];
-    },
-    OP_MATCH_ANY: (left, right, jes, prefix) => {
+        const r = match(left, right, prefix);
+        const matched = r[0];
+
+        if (!matched && context) {
+            context.$$ERROR = r[1];
+        }
+
+        return matched;
+    }
+);
+config.addValidatorToMap(
+    OP_MATCH_ANY,
+    'OP_MATCH_ANY',
+    (left, right, prefix, context) => {
         if (!Array.isArray(right)) {
-            throw new Error(MSG.OPERAND_NOT_ARRAY('OP_MATCH_ANY'));
+            throw new InvalidArgument(MSG.OPERAND_NOT_ARRAY('OP_MATCH_ANY'));
         }
 
         let found = right.find((rule) => {
-            const r = match(left, rule, jes, prefix);
-            return r[0];
+            const r = match(left, rule, prefix);
+            const matched = r[0];
+
+            if (!matched && context) {
+                context.$$ERROR = r[1];
+            }
+
+            return matched;
         });
 
         return found ? true : false;
-    },
-    OP_HAS_KEYS: (left, right) => {
-        if (typeof left !== 'object') return false;
+    }
+);
+config.addValidatorToMap(OP_TYPE, 'OP_TYPE', (left, right) => {
+    if (typeof right !== 'string') {
+        throw new InvalidArgument(MSG.OPERAND_NOT_STRING('OP_TYPE'));
+    }
 
-        return Array.isArray(right)
-            ? right.every((key) => _has(left, key))
-            : _has(left, right);
-    },
-    OP_START_WITH: (left, right) => {
-        if (typeof left !== 'string') return false;
-        if (typeof right !== 'string') {
-            throw new Error(MSG.OPERAND_NOT_STRING('OP_START_WITH'));
-        }
+    right = right.toLowerCase();
 
-        return left.startsWith(right);
-    },
-    OP_END_WITH: (left, right) => {
-        if (typeof left !== 'string') return false;
-        if (typeof right !== 'string') {
-            throw new Error(MSG.OPERAND_NOT_STRING('OP_END_WITH'));
-        }
+    if (right === 'array') {
+        return Array.isArray(left);
+    }
 
-        return left.endsWith(right);
-    },
-};
+    if (right === 'integer') {
+        return _isInteger(left);
+    }
 
-const defaultManipulations = {
-    //unary
-    OP_SIZE: (left) => _size(left),
-    OP_SUM: (left) =>
-        _reduce(
-            left,
-            (sum, item) => {
-                sum += item;
-                return sum;
-            },
-            0
-        ),
+    if (right === 'text') {
+        return typeof left === 'string';
+    }
 
-    OP_KEYS: (left) => _keys(left),
-    OP_VALUES: (left) => _values(left),
-    OP_GET_TYPE: (left) =>
-        Array.isArray(left)
-            ? 'array'
-            : _isInteger(left)
-            ? 'integer'
-            : typeof left,
-    OP_REVERSE: (left) => _reverse(left),
+    return typeof left === right;
+});
+config.addValidatorToMap(OP_HAS_KEYS, 'OP_HAS_KEYS', (left, right) => {
+    if (typeof left !== 'object') return false;
 
-    //binary
-    OP_ADD: (left, right) => left + right,
-    OP_SUB: (left, right) => left - right,
-    OP_MUL: (left, right) => left * right,
-    OP_DIV: (left, right) => left / right,
-    OP_SET: (left, right, jes, prefix, context) =>
-        evaluateExpr(undefined, right, jes, prefix, context, true),
-    OP_ADD_ITEM: (left, right, jes, prefix, context) => {
+    return Array.isArray(right)
+        ? right.every((key) => _has(left, key))
+        : _has(left, right);
+});
+config.addValidatorToMap(OP_START_WITH, 'OP_START_WITH', (left, right) => {
+    if (typeof left !== 'string') return false;
+    if (typeof right !== 'string') {
+        throw new InvalidArgument(MSG.OPERAND_NOT_STRING('OP_START_WITH'));
+    }
+
+    return left.startsWith(right);
+});
+config.addValidatorToMap(OP_END_WITH, 'OP_END_WITH', (left, right) => {
+    if (typeof left !== 'string') return false;
+    if (typeof right !== 'string') {
+        throw new InvalidArgument(MSG.OPERAND_NOT_STRING('OP_END_WITH'));
+    }
+
+    return left.endsWith(right);
+});
+//embedded processors in validation pipeline
+config.addValidatorToMap(OP_EVAL, 'OP_EVAL', (left, right, prefix, context) => {
+    if (!Array.isArray(right) || right.length !== 2) {
+        throw new InvalidArgument(MSG.OPERAND_NOT_TUPLE('OP_EVAL'));
+    }
+
+    const evaluated = evaluateExpr(left, right[0], prefix);
+
+    const r = match(evaluated, right[1], prefix);
+    const matched = r[0];
+
+    if (!matched && context) {
+        context.$$ERROR = r[1];
+    }
+
+    return matched;
+});
+
+// [ <op name>, <unary> ]
+config.addProcessorToMap(OP_SIZE, 'OP_SIZE', true, (left) => _size(left));
+config.addProcessorToMap(OP_SUM, 'OP_SUM', true, (left) =>
+    _reduce(
+        left,
+        (sum, item) => {
+            sum += item;
+            return sum;
+        },
+        0
+    )
+);
+config.addProcessorToMap(OP_KEYS, 'OP_KEYS', true, (left) => _keys(left));
+config.addProcessorToMap(OP_VALUES, 'OP_VALUES', true, (left) => _values(left));
+config.addProcessorToMap(OP_GET_TYPE, 'OP_GET_TYPE', true, (left) =>
+    Array.isArray(left) ? 'array' : _isInteger(left) ? 'integer' : typeof left
+);
+config.addProcessorToMap(OP_REVERSE, 'OP_REVERSE', true, (left) =>
+    _reverse(left)
+);
+
+config.addProcessorToMap(
+    OP_ADD,
+    'OP_ADD',
+    false,
+    (left, right) => left + right
+);
+config.addProcessorToMap(
+    OP_SUB,
+    'OP_SUB',
+    false,
+    (left, right) => left - right
+);
+config.addProcessorToMap(
+    OP_MUL,
+    'OP_MUL',
+    false,
+    (left, right) => left * right
+);
+config.addProcessorToMap(
+    OP_DIV,
+    'OP_DIV',
+    false,
+    (left, right) => left / right
+);
+config.addProcessorToMap(
+    OP_SET,
+    'OP_SET',
+    false,
+    (left, right, prefix, context) =>
+        evaluateExpr(undefined, right, prefix, context, true)
+);
+config.addProcessorToMap(
+    OP_ADD_ITEM,
+    'OP_ADD_ITEM',
+    false,
+    (left, right, prefix, context) => {
         if (typeof left !== 'object') {
-            throw new ValidationError(MSG.VALUE_NOT_COLLECTION('OP_ADD_ITEM'));
+            throw new InvalidArgument(MSG.VALUE_NOT_COLLECTION('OP_ADD_ITEM'));
         }
 
         if (Array.isArray(left)) {
@@ -282,244 +319,203 @@ const defaultManipulations = {
         }
 
         if (!Array.isArray(right) || right.length !== 2) {
-            throw new Error(MSG.OPERAND_NOT_TUPLE('OP_ADD_ITEM'));
+            throw new InvalidArgument(MSG.OPERAND_NOT_TUPLE('OP_ADD_ITEM'));
         }
 
         return {
             ...left,
-            [right[0]]: evaluateExpr(left, right[1], jes, prefix, {
+            [right[0]]: evaluateExpr(left, right[1], prefix, {
                 ...context,
                 $$PARENT: context.$$CURRENT,
                 $$CURRENT: left,
             }),
         };
-    },
-    OP_PICK: (left, right, jes, prefix) => {
-        if (left == null) return null;
+    }
+);
+config.addProcessorToMap(OP_PICK, 'OP_PICK', false, (left, right, prefix) => {
+    if (left == null) return null;
 
-        if (typeof right !== 'object') {
-            right = _castArray(right);
-        }
+    if (typeof right !== 'object') {
+        right = _castArray(right);
+    }
 
-        if (Array.isArray(right)) {
-            return _pick(left, right);
-        }
+    if (Array.isArray(right)) {
+        return _pick(left, right);
+    }
 
-        return _pickBy(
-            left,
-            (x, key) => match(key, right, jes, MSG.formatPrefix(key, prefix))[0]
-        );
-    },
-    OP_GET_BY_INDEX: (left, right) => _nth(left, right),
-    OP_GET_BY_KEY: (left, right) => _get(left, right),
-    OP_OMIT: (left, right, jes, prefix) => {
-        if (left == null) return null;
+    return _pickBy(
+        left,
+        (x, key) => match(key, right, MSG.formatPrefix(key, prefix))[0]
+    );
+});
+config.addProcessorToMap(
+    OP_GET_BY_INDEX,
+    'OP_GET_BY_INDEX',
+    false,
+    (left, right) => _nth(left, right)
+);
+config.addProcessorToMap(OP_GET_BY_KEY, 'OP_GET_BY_KEY', false, (left, right) =>
+    _get(left, right)
+);
+config.addProcessorToMap(OP_OMIT, 'OP_OMIT', false, (left, right, prefix) => {
+    if (left == null) return null;
 
-        if (typeof right !== 'object') {
-            right = _castArray(right);
-        }
+    if (typeof right !== 'object') {
+        right = _castArray(right);
+    }
 
-        if (Array.isArray(right)) {
-            return _omit(left, right);
-        }
+    if (Array.isArray(right)) {
+        return _omit(left, right);
+    }
 
-        return _omitBy(
-            left,
-            (x, key) => match(key, right, jes, MSG.formatPrefix(key, prefix))[0]
-        );
-    },
-    OP_GROUP: (left, right) => _groupBy(left, right),
-    OP_SORT: (left, right) => _sortBy(left, right),
-    OP_EVAL: evaluateExpr,
-    OP_MERGE: (left, right, jes, prefix, context) => {
+    return _omitBy(
+        left,
+        (x, key) => match(key, right, MSG.formatPrefix(key, prefix))[0]
+    );
+});
+config.addProcessorToMap(OP_GROUP, 'OP_GROUP', false, (left, right) =>
+    _groupBy(left, right)
+);
+config.addProcessorToMap(OP_SORT, 'OP_SORT', false, (left, right) =>
+    _sortBy(left, right)
+);
+config.addProcessorToMap(OP_EVAL, 'OP_EVAL', false, evaluateExpr);
+config.addProcessorToMap(
+    OP_MERGE,
+    'OP_MERGE',
+    false,
+    (left, right, prefix, context) => {
         if (!Array.isArray(right)) {
-            throw new Error(MSG.OPERAND_NOT_ARRAY('OP_MERGE'));
+            throw new InvalidArgument(MSG.OPERAND_NOT_ARRAY('OP_MERGE'));
         }
 
         return right.reduce(
             (result, expr, key) =>
                 Object.assign(
                     result,
-                    evaluateExpr(left, expr, jes, MSG.formatPrefix(key, prefix), {
+                    evaluateExpr(left, expr, MSG.formatPrefix(key, prefix), {
                         ...context,
                     })
                 ),
             {}
         );
-    },
-    OP_FILTER: (left, right, jes, prefix/*, context*/) => {
-        if (left == null) return null;
+    }
+);
+config.addProcessorToMap(OP_FILTER, 'OP_FILTER', false, (
+    left,
+    right,
+    prefix /*, context*/
+) => {
+    if (left == null) return null;
 
-        if (typeof left !== 'object') {
-            throw new ValidationError(MSG.VALUE_NOT_COLLECTION('OP_FILTER'));
-        }
+    if (typeof left !== 'object') {
+        throw new InvalidArgument(MSG.VALUE_NOT_COLLECTION('OP_FILTER'));
+    }
 
-        return _filter(left, (value, key) =>
-            test(value, 'OP_MATCH', right, jes, MSG.formatPrefix(key, prefix))
-        );
-    },
-    OP_REMAP: (left, right/*, jes, prefix, context*/) => {
-        if (left == null) return null;
+    return _filter(left, (value, key) =>
+        test(value, 'OP_MATCH', right, MSG.formatPrefix(key, prefix))
+    );
+});
+config.addProcessorToMap(OP_REMAP, 'OP_REMAP', false, (
+    left,
+    right /*, prefix, context*/
+) => {
+    if (left == null) return null;
 
-        if (typeof left !== 'object') {
-            throw new ValidationError(MSG.VALUE_NOT_COLLECTION('OP_REMAP'));
-        }
+    if (typeof left !== 'object') {
+        throw new InvalidArgument(MSG.VALUE_NOT_COLLECTION('OP_REMAP'));
+    }
 
-        return remap(left, right);
-    },
-    OP_IF: (left, right, jes, prefix, context) => {
+    return remap(left, right);
+});
+config.addProcessorToMap(
+    OP_IF,
+    'OP_IF',
+    false,
+    (left, right, prefix, context) => {
         if (!Array.isArray(right)) {
-            throw new Error(MSG.OPERAND_NOT_ARRAY('OP_IF'));
+            throw new InvalidArgument(MSG.OPERAND_NOT_ARRAY('OP_IF'));
         }
 
         if (right.length < 2 || right.length > 3) {
-            throw new Error(MSG.OPERAND_NOT_TUPLE_2_OR_3('OP_IF'));
+            throw new InvalidArgument(MSG.OPERAND_NOT_TUPLE_2_OR_3('OP_IF'));
         }
 
         const condition = evaluateExpr(
             undefined,
             right[0],
-            jes,
             prefix,
             context,
             true
         );
 
-        if (test(left, 'OP_MATCH', condition, jes, prefix)) {
-            return evaluateExpr(left, right[1], jes, prefix, context);
+        if (test(left, 'OP_MATCH', condition, prefix)) {
+            return evaluateExpr(left, right[1], prefix, context);
         } else if (right.length > 2) {
-            const ret = evaluateExpr(left, right[2], jes, prefix, context);
+            const ret = evaluateExpr(left, right[2], prefix, context);
             return ret;
         }
 
         return left;
-    },
-};
-
-function getUnmatchedExplanation(jes, op, name, leftValue, rightValue, prefix) {
-    const getter =
-        jes.operatorExplanations[op] || jes.operatorExplanations.OP_MATCH;
-    return getter(name, leftValue, rightValue, prefix);
-}
-
-function test(value, op, opValue, jes, prefix) {
-    const handler = jes.operatorHandlers[op];
-
-    if (!handler) {
-        throw new Error(MSG.INVALID_TEST_HANLDER(op));
     }
+);
+//embeded validators in processing pipeline
+config.addProcessorToMap(OP_MATCH, 'OP_MATCH', false, (left, right, prefix) => {
+    return test(left, 'OP_MATCH', right, prefix);
+});
 
-    return handler(value, opValue, jes, prefix);
-}
-
-function evaluate(value, op, opValue, jes, prefix, context) {
-    const handler = jes.queryHanlders[op];
-
-    if (!handler) {
-        throw new Error(MSG.INVALID_QUERY_HANDLER(op));
-    }
-
-    return handler(value, opValue, jes, prefix, context);
-}
-
-function evaluateUnary(value, op, jes, prefix) {
-    const handler = jes.queryHanlders[op];
-
-    if (!handler) {
-        throw new Error(MSG.INVALID_QUERY_HANDLER(op));
-    }
-
-    return handler(value, jes, prefix);
-}
-
-function evaluateByOpMeta(
-    currentValue,
+function getUnmatchedExplanation(
+    op,
+    name,
+    leftValue,
     rightValue,
-    opMeta,
-    jes,
     prefix,
     context
 ) {
+    if (context && context.$$ERROR) return context.$$ERROR;
+
+    const getter = MSG.validationErrors[op] || MSG.validationErrors.OP_MATCH;
+    return getter(name, leftValue, rightValue, prefix);
+}
+
+function test(value, tag, opValue, prefix, context) {
+    const handler = config.getValidator(tag);
+
+    if (!handler) {
+        throw new InvalidArgument(MSG.INVALID_VALIDATOR_HANDLER(tag));
+    }
+
+    return handler(value, opValue, prefix, context);
+}
+
+function evaluate(value, tag, opValue, prefix, context) {
+    const handler = config.getProcessor(tag);
+
+    if (!handler) {
+        throw new InvalidArgument(MSG.INVALID_PROCESSOR_HANDLER(tag));
+    }
+
+    return handler(value, opValue, prefix, context);
+}
+
+function evaluateUnary(value, tag, prefix, context) {
+    const handler = config.getProcessor(tag);
+
+    if (!handler) {
+        throw new InvalidArgument(MSG.INVALID_PROCESSOR_HANDLER(tag));
+    }
+
+    return handler(value, prefix, context);
+}
+
+function evaluateByOpMeta(currentValue, rightValue, opMeta, prefix, context) {
     if (opMeta[1]) {
         return rightValue
-            ? evaluateUnary(currentValue, opMeta[0], jes, prefix)
+            ? evaluateUnary(currentValue, opMeta[0], prefix)
             : currentValue;
     }
 
-    return evaluate(currentValue, opMeta[0], rightValue, jes, prefix, context);
-}
-
-const defaultCustomizer = {
-    mapOfOperators: MapOfOps,
-    mapOfManipulators: MapOfMans,
-    operatorHandlers: defaultJesHandlers,
-    operatorExplanations: MSG.validationErrors,
-    queryHanlders: defaultManipulations,
-};
-
-function matchCollection(actual, collectionOp, opMeta, operands, jes, prefix) {
-    let matchResult, nextPrefix;
-
-    switch (collectionOp) {
-        case PFX_FOR_EACH: {
-            const mapResult = isPlainObject(actual)
-                ? _mapValues(actual, (item, key) =>
-                      evaluateByOpMeta(
-                          item,
-                          operands[0],
-                          opMeta,
-                          jes,
-                          MSG.formatPrefix(key, prefix)
-                      )
-                  )
-                : actual.map((item, i) =>
-                      evaluateByOpMeta(
-                          item,
-                          operands[0],
-                          opMeta,
-                          jes,
-                          MSG.formatPrefix(i, prefix)
-                      )
-                  );
-            nextPrefix = MSG.formatPrefix(
-                MSG.formatMap(formatQuery(opMeta)),
-                prefix
-            );
-            matchResult = match(mapResult, operands[1], jes, nextPrefix);
-            break;
-        }
-
-        case PFX_WITH_ANY: {
-            nextPrefix = MSG.formatPrefix(
-                MSG.formatAny(formatQuery(opMeta)),
-                prefix
-            );
-            matchResult = _find(actual, (item, key) =>
-                match(
-                    evaluateByOpMeta(
-                        item,
-                        operands[0],
-                        opMeta,
-                        jes,
-                        MSG.formatPrefix(key, prefix)
-                    ),
-                    operands[1],
-                    jes,
-                    nextPrefix
-                )
-            );
-            break;
-        }
-
-        default:
-            throw new Error(MSG.INVALID_COLLECTION_OP(collectionOp));
-    }
-
-    if (!matchResult[0]) {
-        return matchResult;
-    }
-
-    return undefined;
+    return evaluate(currentValue, opMeta[0], rightValue, prefix, context);
 }
 
 function validateCollection(
@@ -527,25 +523,26 @@ function validateCollection(
     collectionOp,
     op,
     expectedFieldValue,
-    jes,
     prefix
 ) {
+    const context = {};
+
     switch (collectionOp) {
         case PFX_FOR_EACH: {
             const unmatchedKey = _findIndex(
                 actual,
-                (item) => !test(item, op, expectedFieldValue, jes, prefix)
+                (item) => !test(item, op, expectedFieldValue, prefix, context)
             );
             if (unmatchedKey) {
                 return [
                     false,
                     getUnmatchedExplanation(
-                        jes,
                         op,
                         unmatchedKey,
                         actual[unmatchedKey],
                         expectedFieldValue,
-                        prefix
+                        prefix,
+                        context
                     ),
                 ];
             }
@@ -554,19 +551,19 @@ function validateCollection(
 
         case PFX_WITH_ANY: {
             const matched = _find(actual, (item) =>
-                test(item, op, expectedFieldValue, jes, prefix)
+                test(item, op, expectedFieldValue, prefix, context)
             );
 
             if (!matched) {
                 return [
                     false,
                     getUnmatchedExplanation(
-                        jes,
                         op,
                         null,
                         actual,
                         expectedFieldValue,
-                        prefix
+                        prefix,
+                        context
                     ),
                 ];
             }
@@ -574,7 +571,7 @@ function validateCollection(
         }
 
         default:
-            throw new Error(MSG.INVALID_COLLECTION_OP(collectionOp));
+            throw new InvalidArgument(MSG.INVALID_COLLECTION_OP(collectionOp));
     }
 
     return undefined;
@@ -585,54 +582,44 @@ function evaluateCollection(
     collectionOp,
     opMeta,
     expectedFieldValue,
-    jes,
     prefix,
     context
 ) {
     switch (collectionOp) {
         case PFX_FOR_EACH:
-            return _map(currentValue, (item, i) =>
+            return (Array.isArray(currentValue)
+                ? _map
+                : _mapValues)(currentValue, (item, i) =>
                 evaluateByOpMeta(
                     item,
                     expectedFieldValue,
                     opMeta,
-                    jes,
                     MSG.formatPrefix(i, prefix),
                     { ...context, $$PARENT: currentValue, $$CURRENT: item }
                 )
             );
 
-        case PFX_WITH_ANY:
-            throw new Error(MSG.PRX_OP_NOT_FOR_EVAL(collectionOp));
-
         default:
-            throw new Error(MSG.INVALID_COLLECTION_OP(collectionOp));
+            throw new InvalidArgument(MSG.INVALID_COLLECTION_OP(collectionOp));
     }
 }
 
 /**
- *
- * @param {*} actual
- * @param {*} expected
- * @param {*} jes
- * @param {*} prefix
+ * Validate the given object with JSON Expression Syntax (JES)
+ * @param {*} actual - The object to match
+ * @param {*} expected - Expected state in JSON Expression Syntax
+ * @param {*} prefix - Tracking path
  *
  * { key: { $match } }
  */
-function match(actual, expected, jes, prefix) {
-    jes != null || (jes = defaultCustomizer);
+function match(actual, expected, prefix) {
     let passObjectCheck = false;
 
     if (!isPlainObject(expected)) {
-        if (!test(actual, 'OP_EQUAL', expected, jes, prefix)) {
+        if (!test(actual, 'OP_EQUAL', expected, prefix)) {
             return [
                 false,
-                jes.operatorExplanations.OP_EQUAL(
-                    null,
-                    actual,
-                    expected,
-                    prefix
-                ),
+                MSG.validationErrors.OP_EQUAL(null, actual, expected, prefix),
             ];
         }
 
@@ -645,107 +632,50 @@ function match(actual, expected, jes, prefix) {
         const l = fieldName.length;
 
         if (l > 1) {
-            if (l > 4 && fieldName[0] === '|' && fieldName[2] === '$') {
-                if (fieldName[3] === '$') {
-                    if (
-                        !Array.isArray(expectedFieldValue) &&
-                        expectedFieldValue.length !== 2
-                    ) {
-                        throw new Error(MSG.OPERAND_NOT_TUPLE());
-                    }
+            if (l > 3 && fieldName[0] === '|' && fieldName[2] === '$') {
+                //validators
+                const collectionOp = fieldName.substr(0, 2);
+                fieldName = fieldName.substr(2);
 
-                    //processors
-                    const collectionOp = fieldName.substr(0, 2);
-                    fieldName = fieldName.substr(3);
-
-                    const opMeta = jes.mapOfManipulators.get(fieldName);
-                    if (!opMeta) {
-                        throw new Error(MSG.INVALID_QUERY_OPERATOR(fieldName));
-                    }
-
-                    const matchResult = matchCollection(
-                        actual,
-                        collectionOp,
-                        opMeta,
-                        expectedFieldValue,
-                        jes,
-                        prefix
+                const op = config.getValidatorTag(fieldName);
+                if (!op) {
+                    throw new InvalidArgument(
+                        MSG.INVALID_VALIDATION_OP(fieldName)
                     );
-                    if (matchResult) return matchResult;
-                    continue;
-                } else {
-                    //validators
-                    const collectionOp = fieldName.substr(0, 2);
-                    fieldName = fieldName.substr(2);
-
-                    const op = jes.mapOfOperators.get(fieldName);
-                    if (!op) {
-                        throw new Error(MSG.INVALID_TEST_OPERATOR(fieldName));
-                    }
-
-                    const matchResult = validateCollection(
-                        actual,
-                        collectionOp,
-                        op,
-                        expectedFieldValue,
-                        jes,
-                        prefix
-                    );
-                    if (matchResult) return matchResult;
-                    continue;
                 }
+
+                const matchResult = validateCollection(
+                    actual,
+                    collectionOp,
+                    op,
+                    expectedFieldValue,
+                    prefix
+                );
+                if (matchResult) return matchResult;
+                continue;
             }
 
             if (fieldName[0] === '$') {
-                if (l > 2 && fieldName[1] === '$') {
-                    fieldName = fieldName.substr(1);
-
-                    //processors
-                    const opMeta = jes.mapOfManipulators.get(fieldName);
-                    if (!opMeta) {
-                        throw new Error(MSG.INVALID_QUERY_OPERATOR(fieldName));
-                    }
-
-                    if (!opMeta[1]) {
-                        throw new Error(MSG.NOT_A_UNARY_QUERY);
-                    }
-
-                    const queryResult = evaluateUnary(
-                        actual,
-                        opMeta[0],
-                        jes,
-                        prefix
-                    );
-                    const matchResult = match(
-                        queryResult,
-                        expectedFieldValue,
-                        jes,
-                        MSG.formatPrefix(formatQuery(opMeta), prefix)
-                    );
-
-                    if (!matchResult[0]) {
-                        return matchResult;
-                    }
-
-                    continue;
-                }
-
                 //validator
-                const op = jes.mapOfOperators.get(fieldName);
+                const op = config.getValidatorTag(fieldName);
                 if (!op) {
-                    throw new Error(MSG.INVALID_TEST_OPERATOR(fieldName));
+                    throw new InvalidArgument(
+                        MSG.INVALID_VALIDATION_OP(fieldName)
+                    );
                 }
 
-                if (!test(actual, op, expectedFieldValue, jes, prefix)) {
+                const context = {};
+
+                if (!test(actual, op, expectedFieldValue, prefix, context)) {
                     return [
                         false,
                         getUnmatchedExplanation(
-                            jes,
                             op,
                             null,
                             actual,
                             expectedFieldValue,
-                            prefix
+                            prefix,
+                            context
                         ),
                     ];
                 }
@@ -758,12 +688,7 @@ function match(actual, expected, jes, prefix) {
             if (actual == null)
                 return [
                     false,
-                    jes.operatorExplanations.OP_EXISTS(
-                        null,
-                        null,
-                        true,
-                        prefix
-                    ),
+                    MSG.validationErrors.OP_EXISTS(null, null, true, prefix),
                 ];
 
             const actualType = typeof actual;
@@ -771,7 +696,7 @@ function match(actual, expected, jes, prefix) {
             if (actualType !== 'object')
                 return [
                     false,
-                    jes.operatorExplanations.OP_TYPE(
+                    MSG.validationErrors.OP_TYPE(
                         null,
                         actualType,
                         'object',
@@ -791,7 +716,6 @@ function match(actual, expected, jes, prefix) {
             const [ok, reason] = match(
                 actualFieldValue,
                 expectedFieldValue,
-                jes,
                 MSG.formatPrefix(fieldName, prefix)
             );
             if (!ok) {
@@ -799,17 +723,11 @@ function match(actual, expected, jes, prefix) {
             }
         } else {
             if (
-                !test(
-                    actualFieldValue,
-                    'OP_EQUAL',
-                    expectedFieldValue,
-                    jes,
-                    prefix
-                )
+                !test(actualFieldValue, 'OP_EQUAL', expectedFieldValue, prefix)
             ) {
                 return [
                     false,
-                    jes.operatorExplanations.OP_EQUAL(
+                    MSG.validationErrors.OP_EQUAL(
                         fieldName,
                         actualFieldValue,
                         expectedFieldValue,
@@ -834,21 +752,20 @@ function match(actual, expected, jes, prefix) {
  * @param {*} currentValue
  * @param {*} expr
  * @param {*} prefix
- * @param {*} jes
  * @param {*} context
+ * @param {boolean} setOp - Whether the expression is a setOp
  */
-function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
-    jes != null || (jes = defaultCustomizer);
+function evaluateExpr(currentValue, expr, prefix, context, setOp) {
     if (Array.isArray(expr)) {
         if (setOp) {
             return expr.map((item) =>
-                evaluateExpr(undefined, item, jes, prefix, { ...context }, true)
+                evaluateExpr(undefined, item, prefix, { ...context }, true)
             );
         }
 
         return expr.reduce(
             (result, exprItem) =>
-                evaluateExpr(result, exprItem, jes, prefix, { ...context }),
+                evaluateExpr(result, exprItem, prefix, { ...context }),
             currentValue
         );
     }
@@ -863,7 +780,7 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
     if (typeExpr === 'number' || typeExpr === 'bigint') {
         if (setOp) return expr;
 
-        throw new Error(MSG.INVALID_EXPR_SYNTAX);
+        throw new InvalidArgument(MSG.SYNTAX_NUMBER_AS_EXPR);
     }
 
     if (typeExpr === 'string') {
@@ -881,25 +798,25 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
             return expr;
         }
 
-        const opMeta = jes.mapOfManipulators.get(expr);
+        const opMeta = config.getProcessorTagAndType(expr);
         if (!opMeta) {
-            throw new Error(MSG.INVALID_QUERY_OPERATOR(expr));
+            throw new InvalidArgument(MSG.INVALID_PROCESSING_OP(expr));
         }
 
         if (!opMeta[1]) {
-            throw new Error(MSG.REQUIRE_RIGHT_OPERAND(expr));
+            throw new InvalidArgument(MSG.REQUIRE_RIGHT_OPERAND(expr));
         }
 
-        return evaluateUnary(currentValue, opMeta[0], jes, prefix);
+        return evaluateUnary(currentValue, opMeta[0], prefix);
     }
 
     if (typeExpr !== 'object') {
-        throw new Error(MSG.INVALID_EXPR_SYNTAX);
+        throw new InvalidArgument(MSG.SYNTAX_INVALID_EXPR);
     }
 
     if (setOp) {
         return _mapValues(expr, (item) =>
-            evaluateExpr(undefined, item, jes, prefix, context, true)
+            evaluateExpr(undefined, item, prefix, context, true)
         );
     }
 
@@ -922,19 +839,24 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
         if (l > 1) {
             if (fieldName[0] === '$') {
                 if (result) {
-                    throw new Error(MSG.OPERATOR_NOT_ALONE);
+                    throw new InvalidArgument(MSG.SYNTAX_OP_NOT_ALONE);
                 }
 
-                const opMeta = jes.mapOfManipulators.get(fieldName);
+                const opMeta = config.getProcessorTagAndType(fieldName);
                 if (!opMeta) {
-                    throw new Error(MSG.INVALID_QUERY_OPERATOR(fieldName));
+                    throw new InvalidArgument(
+                        MSG.INVALID_PROCESSING_OP(fieldName)
+                    );
+                }
+
+                if (hasOperator) {
+                    throw new InvalidArgument(MSG.SYNTAX_OP_NOT_ALONE);
                 }
 
                 result = evaluateByOpMeta(
                     currentValue,
                     expectedFieldValue,
                     opMeta,
-                    jes,
                     prefix,
                     context
                 );
@@ -944,15 +866,21 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
 
             if (l > 3 && fieldName[0] === '|' && fieldName[2] === '$') {
                 if (result) {
-                    throw new Error(MSG.OPERATOR_NOT_ALONE);
+                    throw new InvalidArgument(MSG.SYNTAX_OP_NOT_ALONE);
                 }
 
                 const collectionOp = fieldName.substr(0, 2);
                 fieldName = fieldName.substr(2);
 
-                const opMeta = jes.mapOfManipulators.get(fieldName);
+                const opMeta = config.getProcessorTagAndType(fieldName);
                 if (!opMeta) {
-                    throw new Error(MSG.INVALID_QUERY_OPERATOR(fieldName));
+                    throw new InvalidArgument(
+                        MSG.INVALID_PROCESSING_OP(fieldName)
+                    );
+                }
+
+                if (hasOperator) {
+                    throw new InvalidArgument(MSG.SYNTAX_OP_NOT_ALONE);
                 }
 
                 result = evaluateCollection(
@@ -960,7 +888,6 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
                     collectionOp,
                     opMeta,
                     expectedFieldValue,
-                    jes,
                     prefix,
                     context
                 );
@@ -970,7 +897,7 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
         }
 
         if (hasOperator) {
-            throw new Error(MSG.OPERATOR_NOT_ALONE);
+            throw new InvalidArgument(MSG.SYNTAX_OP_NOT_ALONE);
         }
 
         let compleyKey = fieldName.indexOf('.') !== -1;
@@ -986,7 +913,6 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
         const childFieldValue = evaluateExpr(
             actualFieldValue,
             expectedFieldValue,
-            jes,
             MSG.formatPrefix(fieldName, prefix),
             context
         );
@@ -1009,17 +935,15 @@ function evaluateExpr(currentValue, expr, jes, prefix, context, setOp) {
  * @class
  */
 class JES {
+    static config = config;
     static match = match;
     static evaluate = evaluateExpr;
-    static defaultCustomizer = defaultCustomizer;
 
     /**
      * @param {object} value
-     * @param {object} customizer
      */
-    constructor(value, customizer) {
+    constructor(value) {
         this.value = value;
-        this.customizer = customizer;
     }
 
     /**
@@ -1029,7 +953,7 @@ class JES {
      * @returns {JES}
      */
     match(expected) {
-        const result = match(this.value, expected, this.customizer);
+        const result = match(this.value, expected);
         if (result[0]) return this;
 
         throw new ValidationError(result[1], {
@@ -1043,7 +967,7 @@ class JES {
      * @param {object} - JSON operation expression
      */
     evaluate(expr) {
-        return evaluateExpr(this.value, expr, this.customizer);
+        return evaluateExpr(this.value, expr);
     }
 
     /**
@@ -1052,8 +976,7 @@ class JES {
      * @returns {JES}
      */
     update(expr) {
-        const value = evaluateExpr(this.value, expr, this.customizer);
-        this.value = value;
+        this.value = evaluateExpr(this.value, expr);
         return this;
     }
 }

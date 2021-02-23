@@ -153,7 +153,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="evaluateExpr"><span class="type-signature"></span>evaluateExpr(currentValue, expr, prefix, jes, context)</h4>
+    <h4 class="name" id="evaluateExpr"><span class="type-signature"></span>evaluateExpr(currentValue, expr, prefix, context, setOp)</h4>
     
     
 </dt>
@@ -272,7 +272,7 @@ $groupBy: 'key'<br>
 
         <tr>
             
-                <td class="name"><code>jes</code></td>
+                <td class="name"><code>context</code></td>
             
 
             <td class="type">
@@ -296,13 +296,13 @@ $groupBy: 'key'<br>
 
         <tr>
             
-                <td class="name"><code>context</code></td>
+                <td class="name"><code>setOp</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -313,7 +313,7 @@ $groupBy: 'key'<br>
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Whether the expression is a setOp</p></td>
         </tr>
 
     
@@ -386,12 +386,16 @@ $groupBy: 'key'<br>
             
 <hr>
 <dt>
-    <h4 class="name" id="match"><span class="type-signature"></span>match(actual, expected, jes, prefix)</h4>
+    <h4 class="name" id="match"><span class="type-signature"></span>match(actual, expected, prefix)</h4>
     
     
 </dt>
 <dd>
 
+    
+    <div class="description">
+        <p>Validate the given object with JSON Expression Syntax (JES)</p>
+    </div>
     
 
     
@@ -442,7 +446,7 @@ $groupBy: 'key'<br>
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>The object to match</p></td>
         </tr>
 
     
@@ -466,31 +470,7 @@ $groupBy: 'key'<br>
 
             
 
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>jes</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
+            <td class="description last"><p>Expected state in JSON Expression Syntax</p></td>
         </tr>
 
     
@@ -514,7 +494,8 @@ $groupBy: 'key'<br>
 
             
 
-            <td class="description last"><p>{ key: { $match } }</p></td>
+            <td class="description last"><p>Tracking path</p>
+<p>{ key: { $match } }</p></td>
         </tr>
 
     

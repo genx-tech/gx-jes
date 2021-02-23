@@ -13,34 +13,28 @@ const formatKey = (key, hasPrefix) =>
     Number.isInteger(key) ? `[${key}]` : hasPrefix ? '.' + key : key;
 const formatPrefix = (key, prefix) =>
     prefix != null ? `${prefix}${formatKey(key, true)}` : formatKey(key, false);
-const formatMap = (name) => `each(->${name})`;
-const formatAny = (name) => `any(->${name})`;
 
 const messages = {
     formatName,
     formatKey,
     formatPrefix,
-    formatMap,
-    formatAny,
 };
 
 //Exception messages
-messages.OPERATOR_NOT_ALONE =
-    'Query operator can only be used alone in a stage.';
-messages.NOT_A_UNARY_QUERY =
-    'Only unary query operator is allowed to be used directly in a matching.';
-messages.INVALID_EXPR_SYNTAX = 'Invalid expression syntax.';
+messages.SYNTAX_OP_NOT_ALONE =
+    'Processing operator can only be used alone in one pipeline stage.';
+messages.SYNTAX_INVALID_EXPR = 'Invalid expression syntax.';
+messages.SYNTAX_NUMBER_AS_EXPR =
+    'Number value cannot be used as a processor expression.';
 
-messages.INVALID_QUERY_OPERATOR = (op) => `Invalid JES query operator "${op}".`;
-messages.INVALID_TEST_OPERATOR = (op) => `Invalid JES test operator "${op}".`;
-messages.INVALID_QUERY_HANDLER = (op) =>
-    `JES query operator "${op}" handler not found.`;
-messages.INVALID_TEST_HANLDER = (op) =>
-    `JES test operator "${op}" handler not found.`;
-
+messages.INVALID_PROCESSING_OP = (op) => `Invalid processing operator "${op}".`;
+messages.INVALID_VALIDATION_OP = (op) => `Invalid validation operator "${op}".`;
 messages.INVALID_COLLECTION_OP = (op) => `Invalid collection operator "${op}".`;
-messages.PRX_OP_NOT_FOR_EVAL = (op) =>
-    `Operator prefix "${op}" cannot be used in evaluation.`;
+
+messages.INVALID_PROCESSOR_HANDLER = (tag) =>
+    `Handler for processor "${tag}" not found.`;
+messages.INVALID_TEST_HANLDER = (tag) =>
+    `Handler for validator "${tag}" not found.`;
 
 messages.OPERAND_NOT_TUPLE = (op) =>
     `The operand of a collection operator ${
@@ -60,35 +54,6 @@ messages.VALUE_NOT_COLLECTION = (op) =>
 
 messages.REQUIRE_RIGHT_OPERAND = (op) =>
     `Binary query operator "${op}" requires the right operand.`;
-
-messages.queryOperators = {
-    //unary
-    OP_SIZE: 'size',
-    OP_SUM: 'sum',
-    OP_KEYS: 'keys',
-    OP_VALUES: 'values',
-    OP_GET_TYPE: 'get type',
-    OP_REVERSE: 'reverse',
-
-    //binary
-    OP_ADD: 'add',
-    OP_SUB: 'subtract',
-    OP_MUL: 'multiply',
-    OP_DIV: 'divide',
-    OP_SET: 'assign',
-    OP_ADD_ITEM: 'addItem',
-    OP_PICK: 'pick',
-    OP_GET_BY_INDEX: 'get element at index',
-    OP_GET_BY_KEY: 'get element of key',
-    OP_OMIT: 'omit',
-    OP_GROUP: 'groupBy',
-    OP_SORT: 'sortBy',
-    OP_EVAL: 'evaluate',
-    OP_MERGE: 'merge',
-    OP_FILTER: 'filter',
-    OP_REMAP: 'remap',
-    OP_IF: 'evaluate if',
-};
 
 messages.validationErrors = {
     OP_EQUAL: (name, left, right, prefix) =>

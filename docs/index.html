@@ -95,7 +95,70 @@
     <section class="readme-section">
         <article><h1>@genx/jes</h1>
 <p>JSON Expression Syntax (JES)</p>
-<p>https://genx-tech.github.io/gx-jes</p>
+<h2>Usage</h2>
+<pre class="prettyprint source"><code>const JES = require('@genx/jes');
+let obj = {...};
+
+const jeso = new JES(obj);
+
+JES.match({
+    //...JES validation schema    
+}); //returns [ {boolean} matched, {string} [reasonOfUnmatched] ]
+
+jeso.match({
+    //...JES validation schema    
+}); //returns jeso if matched or throw an exception
+
+//immutable processing
+jeso.evaluate({
+    //...JES transforming schema    
+}); //returns the transformed result 
+
+//mutale processing
+jeso.update({
+    //...JES processing schema    
+}); //returns jeso with the internal value being transfromed
+</code></pre>
+<p>Sample validation schema</p>
+<pre class="prettyprint source"><code>jeso.match({
+    key1: { $gt: 0 } // The value of item with key &quot;key1&quot; should greater than 0
+});
+</code></pre>
+<p>Sample processing schema</p>
+<pre class="prettyprint source"><code>jeso.evaluate([
+    { //stage1
+        $select: { //select all items with field user >= 102
+            user: {
+                $gte: 102,
+            },
+        },
+    },
+    { //stage2
+        '|>$omit': { //for each item, omit all fields starting with 'password', e.g. password, passwordSalt
+            $startWith: 'password',
+        },
+    },
+]);
+</code></pre>
+<h2>Builtin validation operators</h2>
+<h3>$eq, $eql, $equal</h3>
+<p>Deep equal comparison</p>
+<pre class="prettyprint source"><code>{ $eq: { key1: 100, key2: 'something', key3: [ 1, 2, 3 ] } }
+</code></pre>
+<h3>$ne, $neq, $notEqual</h3>
+<p>Deep non-equal comparison</p>
+<pre class="prettyprint source"><code>{ $neq: { key1: 100, key2: 'something', key3: [ 1, 2, 3 ] } }
+</code></pre>
+<h3>$not</h3>
+<p>Not</p>
+<pre class="prettyprint source"><code>{ $not: { $gt: 0 } }
+</code></pre>
+<h3>$gt, $&gt;, $greaterThan</h3>
+<pre class="prettyprint source"><code>{ $gt: 0 }
+</code></pre>
+<h2>Builtin processing operators</h2>
+<h3>$size, $length, $count</h3>
+<h3>$sum, $total</h3>
 <h2>License</h2>
 <p>MIT</p></article>
     </section>

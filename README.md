@@ -2,6 +2,11 @@
 
 JSON Expression Syntax (JES)
 
+## Features
+
+-   Validate a value with JSON Expression Syntax
+-   Make transforming to a value with JSON Expression Syntax
+
 ## Usage
 
 ```
@@ -183,31 +188,6 @@ JES.match(..., {
 ### '$at', '$getByIndex', '$nth'
 
 ### '$of', '$getByKey'
-
-###
-
-//Manipulate processors
-const OP_ADD = [];
-const OP_SUB = [, ];
-const OP_MUL = [];
-const OP_DIV = [];
-const OP_SET = [];
-const OP_ADD_ITEM = [];
-
-const OP_PICK = [];
-const OP_GET_BY_INDEX = [];
-const OP_GET_BY_KEY = [];
-const OP_OMIT = ['$omit']; // filter by key
-const OP_GROUP = ['$group', '$groupBy'];
-const OP_SORT = ['$sort', '$orderBy', '$sortBy'];
-const OP_REVERSE = ['$reverse'];
-const OP_EVAL = ['$eval', '$apply'];
-const OP_MERGE = ['$merge'];
-const OP_FILTER = ['$filter', '$select']; // filter by value
-const OP_REMAP = ['$remap'];
-
-//Condition processors
-const OP_IF = ['$if'];
 
 ## License
 

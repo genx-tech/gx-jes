@@ -305,7 +305,13 @@ const [ matched, unmatchedReason ] = JES.match(
 //matched: 2, unmatchedReason: undefined
 ```
 ### '$set', '$=', '$value'
-
+Set value
+```
+const [ matched, unmatchedReason ] = JES.match(
+    [1,2,3],
+    { $set: 4 });
+//matched: 4, unmatchedReason: undefined
+```
 ### '$addItem', '$override'
 Add item
 ```

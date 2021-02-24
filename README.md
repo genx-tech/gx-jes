@@ -94,7 +94,7 @@ Not
 ```
 
 ### $gt, $>, $greaterThan
-
+Greater than
 ```
 const [ matched, unmatchedReason ] = JES.match(
     1,
@@ -103,7 +103,7 @@ const [ matched, unmatchedReason ] = JES.match(
 ```
 
 ### $gte, $>=, $greaterThanOrEqual
-
+Greater than or Equal
 ```
 const [ matched, unmatchedReason ] = JES.match(
     1,
@@ -112,19 +112,60 @@ const [ matched, unmatchedReason ] = JES.match(
 ```
 
 ### $lt, $<, $lessThan
-
+Less than
+```
+const [ matched, unmatchedReason ] = JES.match(
+    1,
+    { $lt: 2 });
+//matched: true, unmatchedReason: undefined
+```
 ### $lte, $<=, $lessThanOrEqual
-
+Less than or equal
+```
+const [ matched, unmatchedReason ] = JES.match(
+    1,
+    { $lte: 2 });
+//matched: true, unmatchedReason: undefined
+```
 ### $in
-
+Has object
+```
+const [ matched, unmatchedReason ] = JES.match(
+    1,
+    { $in: [0,1,2] });
+//matched: true, unmatchedReason: undefined
+```
 ### $nin, $notIn
-
+Not has object
+```
+const [ matched, unmatchedReason ] = JES.match(
+    1,
+    { $in: [0,2,3] });
+//matched: true, unmatchedReason: undefined
+```
 ### $exist, $exists, $notNull
-
+Not null
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $exist: 1 });
+//matched: true, unmatchedReason: undefined
+```
 ### $has, $match, $all
-
+Search a string for a match and return the first matched one
+```
+const [ matched, unmatchedReason ] = JES.match(
+    "abcabcabc",
+    { $has: "abc" });
+//matched: "abc", unmatchedReason: undefined
+```
 ### $any, $or, $either
-
+Search a string for a match
+```
+const [ matched, unmatchedReason ] = JES.match(
+    "abcabcabc",
+    { $any: "abc" });
+//matched: true, unmatchedReason: undefined
+```
 ### $is, $typeOf
 
 Check the value whether is certain type. Type can be one of integer, boolean, number, bigint, function, array, object, string(/text) and undefined
@@ -137,11 +178,29 @@ const [ matched, unmatchedReason ] = JES.match(
 ```
 
 ### $hasKey, $hasKeys, $withKey, $withKeys
-
+Checks if `path` is a direct property of `object`
+```
+const [ matched, unmatchedReason ] = JES.match(
+    {a:{b:10}},
+    { $hasKey: a.b });
+//matched: true, unmatchedReason: undefined
+```
 ### $startWith, $startsWith
-
+Start with
+```
+const [ matched, unmatchedReason ] = JES.match(
+    "abcdefg",
+    { $startWith: "a" });
+//matched: true, unmatchedReason: undefined
+```
 ### $endWith, $endsWith
-
+End with
+```
+const [ matched, unmatchedReason ] = JES.match(
+    "abcdefg",
+    { $endWith: "g" });
+//matched: true, unmatchedReason: undefined
+```
 ### $eval, $apply
 
 Apply processors pipeline to the value before validation.
@@ -160,35 +219,133 @@ JES.match(..., {
 ## Builtin processing operators
 
 ### $size, $length, $count
-
+Get the size of array
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $size: [1,2,3,4] });
+//matched: 4, unmatchedReason: undefined
+```
 ### $sum, $total
-
+Get the sum of array
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $size: [1,2,3,4] });
+//matched: 10, unmatchedReason: undefined
+```
 ### $keys
+Creates an array of the own enumerable property names of `object`.
+```
+function Foo(){
+    this.a = 1;
+    this.c = 2;
+}
+const [ matched, unmatchedReason ] = JES.match(
+    { $keys: new Foo });
+//matched: ['a','c'], unmatchedReason: undefined
 
+const [ matched, unmatchedReason ] = JES.match(
+    { $keys: "abcd" });
+//matched: ['0','1','2','3'], unmatchedReason: undefined
+```
 ### $values
+Creates an array of the own enumerable string keyed property values of `object`.
+```
+function Foo(){
+    this.a = 1;
+    this.c = 2;
+}
+const [ matched, unmatchedReason ] = JES.match(
+    { $values: new Foo });
+//matched: [1,2], unmatchedReason: undefined
 
+const [ matched, unmatchedReason ] = JES.match(
+    { $values: "abcd" });
+//matched: ['a','b','c','d'], unmatchedReason: undefined
+```
 ### $type
-
+Type of
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $type: [1,2,3,4] });
+//matched: 'object', unmatchedReason: undefined
+const [ matched, unmatchedReason ] = JES.match(
+    { $type: 1 });
+//matched: 'number', unmatchedReason: undefined
+```
 ### '$add', '$plus', '$inc'
-
+Add
+```
+const [ matched, unmatchedReason ] = JES.match(
+    1,
+    { $add: 1 });
+//matched: 2, unmatchedReason: undefined
+```
 ### '$sub', '$subtract', '$minus', '$dec'
-
+Substact
+```
+const [ matched, unmatchedReason ] = JES.match(
+    2,
+    { $sub: 1 });
+//matched: 1, unmatchedReason: undefined
+```
 ### '$mul', '$multiply', '$times'
-
+Multiply
+```
+const [ matched, unmatchedReason ] = JES.match(
+    2,
+    { $mul: 1 });
+//matched: 2, unmatchedReason: undefined
+```
 ### '$div', '$divide'
-
+Divide
+```
+const [ matched, unmatchedReason ] = JES.match(
+    2,
+    { $div: 1 });
+//matched: 2, unmatchedReason: undefined
+```
 ### '$set', '$=', '$value'
 
 ### '$addItem', '$override'
 
 ### $pick
-
+Creates an object composed of the `object` properties `predicate` returns truthy for. The predicate is invoked with two arguments: (value, key).
+```
+function isNumber(value) {
+  return typeof value == 'number' ||
+    (isObjectLike(value) && baseGetTag(value) == numberTag);
+}
+const [ matched, unmatchedReason ] = JES.match(
+    { $pick: ({'a':1,'b':'2','c':3},isNumber) });
+//matched: {'a':1,'c':3}, unmatchedReason: undefined
+```
 ### $omit
-
+The opposite of `_.pick`; this method creates an object composed of the own and inherited enumerable property paths of `object` that are not omitted.
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $omit: ({'a':1,'b':'2','c':3},['a','c']) });
+//matched: {'b':2}, unmatchedReason: undefined
+```
 ### '$at', '$getByIndex', '$nth'
-
+Gets the element at index `n` of `array`. If `n` is negative, the nth element from the end is returned.
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $at: ([0,1,2,3,4,5],1) });
+//matched: 1, unmatchedReason: undefined
+const [ matched, unmatchedReason ] = JES.match(
+    { $at: ([0,1,2,3,4,5],-1) });
+//matched: 5, unmatchedReason: undefined
+```
 ### '$of', '$getByKey'
-
+Gets the value at `path` of `object`. If the resolved value is `undefined`, the `defaultValue` is returned in its place.
+```
+const [ matched, unmatchedReason ] = JES.match(
+    { $of: ({ 'a': [{ 'b': { 'c': 3 } }] },['a', '0', 'b', 'c']) });
+//matched: 3, unmatchedReason: undefined
+const [ matched, unmatchedReason ] = JES.match(
+    { $of: ({ 'a': [{ 'b': { 'c': 3 } }] },a.b.c,DEFAULT_VALUE) });
+//matched: DEFAULT_VALUE, unmatchedReason: undefined
+```
 ## License
 
 MIT

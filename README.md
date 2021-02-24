@@ -307,7 +307,13 @@ const [ matched, unmatchedReason ] = JES.match(
 ### '$set', '$=', '$value'
 
 ### '$addItem', '$override'
-
+Add item
+```
+const [ matched, unmatchedReason ] = JES.match(
+    [1,2,3],
+    { $addItem: 4 });
+//matched: [1,2,3,4], unmatchedReason: undefined
+```
 ### $pick
 Creates an object composed of the `object` properties `predicate` returns truthy for. The predicate is invoked with two arguments: (value, key).
 ```

@@ -2,6 +2,12 @@
 
 JSON Expression Syntax (JES)
 
+## Installation
+
+```sh
+npm install @genx/jes
+```
+
 ## Features
 
 -   Validate a value with JSON Expression Syntax

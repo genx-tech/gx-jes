@@ -1,6 +1,6 @@
 const JES = require('../index');
 const { Types } = require('@genx/data');
-
+var should = require('should');
 describe('jes:extension', function () {  
     it('sanitize', function () {
         let obj = {
@@ -61,7 +61,9 @@ describe('jes:extension', function () {
             arrayKey: [ { key1: 'value1', key2: false }, { key1: 'value2', key2: true } ],
             objKey: { objKey2: { intKey: 1, boolKey: true } }
         };
+        console.log(sanitized.should);
         
+        //a.should.be.eql(1);
         sanitized.should.be.eql(expected);
     })
 });

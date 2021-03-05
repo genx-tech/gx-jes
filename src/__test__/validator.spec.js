@@ -433,4 +433,27 @@ describe('jes:validator', function () {
             
         }).should.be.eql([ true]);
     });
+    it('match collection', function () {
+        let array = [1,2,3,4,-1];
+        
+
+        let matched = JES.match(array, {
+            '|*$gt': 0,
+        });
+        matched.should.be.eql([true]);
+
+        let matched3 = JES.match(array, {
+            '|*$gt': 10,
+        });
+        matched3.should.be.eql([false,'The value should be greater than 10, but [1,2,3,4,-1] given.']);
+        let array2 = [11,12,13];
+        
+        
+        let matched2 = JES.match(array2, {
+            '|>$gt': 0,
+        }).should.be.eql([true]);
+       let matched4 = JES.match(array2, {
+            '|>$gt': 20,
+        }).should.be.eql([ false, '"[0]" should be greater than 20, but 11 given.' ]);
+    });
 });

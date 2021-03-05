@@ -533,7 +533,8 @@ function validateCollection(
                 actual,
                 (item) => !test(item, op, expectedFieldValue, prefix, context)
             );
-            if (unmatchedKey) {
+
+            if (unmatchedKey !== -1) {
                 return [
                     false,
                     getUnmatchedExplanation(

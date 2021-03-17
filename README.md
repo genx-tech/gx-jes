@@ -11,7 +11,7 @@ npm install @genx/jes
 ## Features
 
 -   Validate a value with JSON Expression Syntax
--   Make transforming to a value with JSON Expression Syntax
+-   Apply transformation to a value with JSON Expression Syntax
 
 ## Usage
 

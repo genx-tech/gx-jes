@@ -466,8 +466,12 @@ config.addProcessorToMap(OP_MATCH, 'OP_MATCH', false, (left, right, prefix) => {
     return test(left, 'OP_MATCH', right, prefix);
 });
 
-config.addProcessorToMap(OP_TO_JSON, 'OP_TO_JSON', true, (left) => JSON.stringify(left));
-config.addProcessorToMap(OP_TO_OBJ, 'OP_TO_OBJ', true, (left) => JSON.parse(left));
+config.addProcessorToMap(OP_TO_JSON, 'OP_TO_JSON', true, (left) =>
+    JSON.stringify(left)
+);
+config.addProcessorToMap(OP_TO_OBJ, 'OP_TO_OBJ', true, (left) =>
+    JSON.parse(left)
+);
 
 function getUnmatchedExplanation(
     op,

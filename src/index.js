@@ -73,6 +73,7 @@ const OP_MUL = ['$mul', '$multiply', '$times'];
 const OP_DIV = ['$div', '$divide'];
 const OP_SET = ['$set', '$=', '$value'];
 const OP_ADD_ITEM = ['$addItem', '$override'];
+const OP_ASSIGN = ['$assign', '$addFields'];
 
 const OP_PICK = ['$pick'];
 const OP_GET_BY_INDEX = ['$at', '$getByIndex', '$nth'];
@@ -332,6 +333,30 @@ config.addProcessorToMap(
                 $$CURRENT: left,
             }),
         };
+    }
+);
+config.addProcessorToMap(
+    OP_ASSIGN,
+    'OP_ASSIGN',
+    false,
+    (left, right, prefix, context) => {
+        if (!isPlainObject(left)) {
+            throw new InvalidArgument(MSG.VALUE_NOT_OBJECT('OP_ASSIGN'));
+        }
+
+        if (!isPlainObject(right)) {
+            throw new InvalidArgument(MSG.OPERAND_NOT_OBJECT('OP_ASSIGN'));
+        }
+
+        const rightValue = _mapValues(right, (expr, key) =>
+            evaluateExpr(left[key], expr, MSG.formatPrefix(key, prefix), {
+                ...context,
+                $$PARENT: left,
+                $$CURRENT: left[key],
+            })
+        );
+
+        return { ...left, ...rightValue };
     }
 );
 config.addProcessorToMap(OP_PICK, 'OP_PICK', false, (left, right, prefix) => {

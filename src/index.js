@@ -492,10 +492,10 @@ config.addProcessorToMap(OP_MATCH, 'OP_MATCH', false, (left, right, prefix) => {
 });
 
 config.addProcessorToMap(OP_TO_JSON, 'OP_TO_JSON', true, (left) =>
-    JSON.stringify(left)
+    left == null ? left : JSON.stringify(left)
 );
 config.addProcessorToMap(OP_TO_OBJ, 'OP_TO_OBJ', true, (left) =>
-    JSON.parse(left)
+    left == null ? left : JSON.parse(left)
 );
 
 function getUnmatchedExplanation(

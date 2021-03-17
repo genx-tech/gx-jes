@@ -617,7 +617,7 @@ describe('jes:processor', function () {
         
     });
 
-    it.only('remap', function () {
+    it('remap', function () {
         let array = [
             {
                 'id': 1,
@@ -675,7 +675,7 @@ describe('jes:processor', function () {
                 }
             },
         ]);
-
+        
         transformed.should.be.eql([{ username: 102 }, { username: 103 }, { username: 104 }]);
         
     });

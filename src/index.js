@@ -84,7 +84,7 @@ const OP_REVERSE = ['$reverse'];
 const OP_EVAL = ['$eval', '$apply'];
 const OP_MERGE = ['$merge'];
 const OP_FILTER = ['$filter', '$select']; // filter by value
-const OP_REMAP = ['$remap'];
+const OP_REMAP = ['$remap', '$mapKeys'];
 const OP_TO_JSON = ['$json', '$toJSON', '$stringify'];
 const OP_TO_OBJ = ['$object', '$parseJSON'];
 

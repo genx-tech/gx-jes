@@ -85,6 +85,8 @@ const OP_EVAL = ['$eval', '$apply'];
 const OP_MERGE = ['$merge'];
 const OP_FILTER = ['$filter', '$select']; // filter by value
 const OP_REMAP = ['$remap'];
+const OP_TO_JSON = ['$json', '$toJSON', '$stringify'];
+const OP_TO_OBJ = ['$object', '$parseJSON'];
 
 //Condition processors
 const OP_IF = ['$if'];
@@ -463,6 +465,9 @@ config.addProcessorToMap(
 config.addProcessorToMap(OP_MATCH, 'OP_MATCH', false, (left, right, prefix) => {
     return test(left, 'OP_MATCH', right, prefix);
 });
+
+config.addProcessorToMap(OP_TO_JSON, 'OP_TO_JSON', true, (left) => JSON.stringify(left));
+config.addProcessorToMap(OP_TO_OBJ, 'OP_TO_OBJ', true, (left) => JSON.parse(left));
 
 function getUnmatchedExplanation(
     op,

@@ -443,6 +443,26 @@ const [ matched, unmatchedReason ] = JES.match(
 //matched: DEFAULT_VALUE, unmatchedReason: undefined
 ```
 
+### '$json', '$toJSON', '$stringify'
+
+Stringify the value (from Object to JSON).
+
+```
+{
+    key: '$toJSON'
+}
+```
+
+### '$object', '$parseJSON'
+
+Parse the value into object (from JSON to Object).
+
+```
+{
+    key: '$parseJSON'
+}
+```
+
 ## License
 
 MIT

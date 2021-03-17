@@ -6,6 +6,7 @@ const mapOfValidators = {};
 const processorHandlers = {};
 const mapOfProcessors = {};
 
+//JSON Expression Syntax Runtime Configuration
 const config = {
     addValidatorToMap: (tokens, tag, handler) => {
         tokens.forEach((op) => {

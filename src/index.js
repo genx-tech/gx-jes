@@ -453,6 +453,18 @@ config.addProcessorToMap(OP_REMAP, 'OP_REMAP', false, (
         throw new InvalidArgument(MSG.VALUE_NOT_COLLECTION('OP_REMAP'));
     }
 
+    if (Array.isArray(right)) {
+        if (right.length !== 2) {
+            throw new InvalidArgument(MSG.OPERAND_NOT_TUPLE('OP_REMAP'));
+        }
+
+        return remap(left, right[0], right[1]);
+    }
+
+    if (!isPlainObject(right)) {
+        throw new InvalidArgument(MSG.OPERAND_NOT_OBJECT('OP_REMAP'));
+    }
+
     return remap(left, right);
 });
 config.addProcessorToMap(

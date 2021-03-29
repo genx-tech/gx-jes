@@ -679,6 +679,30 @@ describe('jes:processor', function () {
         transformed.should.be.eql([{ username: 102 }, { username: 103 }, { username: 104 }]);
         
     });
+
+    it.only('remap keep unmapped', function () {
+        let array = [
+            {
+                'id': 1,
+                'user': 100
+            },
+            {
+                'id': 2,
+                'user': 101
+            }
+        ];
+
+        let transformed = JES.evaluate(array, [
+            {
+                '|>$remap': [{
+                    user: 'username',
+                }, true]
+            },
+        ]);
+
+        transformed.should.be.eql([{ id: 1, username: 100 }, { id: 2, username: 101 }]);
+        
+    });
     
 
     it('if', function () {
@@ -772,5 +796,34 @@ describe('jes:processor', function () {
             ],
         });
         picked_left.should.be.eql({});
+    });
+
+    it('assign', function () {
+        let obj = {
+                'id': 1,
+                'user': 100,
+                'agency': 1,
+                ':user': { email: 'email1', other: 'any' },
+                ':agency': { name: 'agency1', other: 'any' },
+            };
+
+        let transformed = JES.evaluate(obj, [
+            {               
+                '$assign': {
+                    user: {
+                        $add: 200
+                    }
+                }
+            },
+        ]);
+
+        transformed.should.be.eql({
+            'id': 1,
+            'user': 300,
+            'agency': 1,
+            ':user': { email: 'email1', other: 'any' },
+            ':agency': { name: 'agency1', other: 'any' },
+        });
+        
     });
 });

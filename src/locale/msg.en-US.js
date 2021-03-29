@@ -37,20 +37,25 @@ messages.INVALID_TEST_HANLDER = (tag) =>
     `Handler for validator "${tag}" not found.`;
 
 messages.OPERAND_NOT_TUPLE = (op) =>
-    `The operand of a collection operator ${
+    `The right operand of a collection operator ${
         op ? '"' + op + '" ' : ''
     }must be a two-tuple.`;
 messages.OPERAND_NOT_TUPLE_2_OR_3 = (op) =>
-    `The operand of a "${op}" operator must be either a 2-tuple or a 3-tuple.`;
+    `The right operand of a "${op}" operator must be either a 2-tuple or a 3-tuple.`;
 messages.OPERAND_NOT_ARRAY = (op) =>
-    `The operand of a "${op}" operator must be an array.`;
+    `The right operand of a "${op}" operator must be an array.`;
 messages.OPERAND_NOT_BOOL = (op) =>
-    `The operand of a "${op}" operator must be a boolean value.`;
+    `The right operand of a "${op}" operator must be a boolean value.`;
 messages.OPERAND_NOT_STRING = (op) =>
-    `The operand of a "${op}" operator must be a string.`;
+    `The right operand of a "${op}" operator must be a string.`;
+messages.OPERAND_NOT_OBJECT = (op) =>
+    `The right operand of a "${op}" operator must be an object.`;
 
 messages.VALUE_NOT_COLLECTION = (op) =>
-    `The value using a "${op}" operator must be either an object or an array.`;
+    `The value to take a "${op}" operator must be either an object or an array.`;
+
+messages.VALUE_NOT_OBJECT = (op) =>
+    `The value to take a "${op}" operator must be an object.`;
 
 messages.REQUIRE_RIGHT_OPERAND = (op) =>
     `Binary query operator "${op}" requires the right operand.`;

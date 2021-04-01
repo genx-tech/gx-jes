@@ -341,7 +341,11 @@ config.addProcessorToMap(
     false,
     (left, right, prefix, context) => {
         if (!isPlainObject(left)) {
-            throw new InvalidArgument(MSG.VALUE_NOT_OBJECT('OP_ASSIGN'));
+            if (left == null) {
+                left = {};
+            } else {
+                throw new InvalidArgument(MSG.VALUE_NOT_OBJECT('OP_ASSIGN'));
+            }
         }
 
         if (!isPlainObject(right)) {

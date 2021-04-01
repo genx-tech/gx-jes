@@ -675,7 +675,7 @@ describe('jes:processor', function () {
                 }
             },
         ]);
-
+        
         transformed.should.be.eql([{ username: 102 }, { username: 103 }, { username: 104 }]);
         
     });

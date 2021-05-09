@@ -78,7 +78,7 @@
     },
     "dependencies": {
         "@genx/error": "*",
-        "@genx/july": "github:genx-tech/gx-jes"
+        "@genx/july": "github:genx-tech/gx-july"
     },
     "devDependencies": {
         "@genx/data": "*",

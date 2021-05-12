@@ -1,5 +1,5 @@
 const JES = require('../index');
-var should = require('should');
+
 describe('jes:processor', function () {  
     it('eval', function () {
         let obj = {
@@ -184,14 +184,7 @@ describe('jes:processor', function () {
             jeso.evaluate({
                 $merge: 1,
             });
-        }, /The operand of a "OP_MERGE" operator must be an array./);
-
-        should.throws(function () {
-            jeso.evaluate({
-                $merge: 1,
-                
-            });
-        }, /The operand of a "OP_MERGE" operator must be an array./);
+        }, 'The right operand of a "OP_MERGE" operator must be an array.');
 
         let transformed = JES.evaluate(array, {
             '|>$apply': {
@@ -348,6 +341,7 @@ describe('jes:processor', function () {
         ];
 
         
+
         should.throws(() => {
             let transformed = JES.evaluate(array, {
                 '|>$apply': [
@@ -680,7 +674,7 @@ describe('jes:processor', function () {
         
     });
 
-    it.only('remap keep unmapped', function () {
+    it('remap keep unmapped', function () {
         let array = [
             {
                 'id': 1,

@@ -81,6 +81,7 @@
         "@genx/july": "github:genx-tech/gx-july"
     },
     "devDependencies": {
+        "@genx/app": "*",
         "@genx/data": "*",
         "@babel/core": "^7.12.13",
         "@babel/eslint-parser": "^7.12.13",

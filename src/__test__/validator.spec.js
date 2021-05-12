@@ -1,5 +1,5 @@
 const JES = require('../index');
-var should = require('should');
+
 describe('jes:validator', function () {
     it('equal', function () {
         let obj = {

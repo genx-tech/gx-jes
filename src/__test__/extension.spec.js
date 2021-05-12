@@ -1,6 +1,6 @@
 const JES = require('../index');
 const { Types } = require('@genx/data');
-var should = require('should');
+
 describe('jes:extension', function () {  
     it('sanitize', function () {
         let obj = {

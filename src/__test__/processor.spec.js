@@ -340,7 +340,7 @@ describe('jes:processor', function () {
             1,
         ];
 
-        
+
 
         should.throws(() => {
             let transformed = JES.evaluate(array, {
@@ -350,7 +350,7 @@ describe('jes:processor', function () {
                     },
                 ],
             });
-        }, /The value using a "OP_ADD_ITEM" operator must be either an object or an array./);
+        }, /The value to take a "OP_ADD_ITEM" operator must be either an object or an array./);
         
     });
 
@@ -728,7 +728,7 @@ describe('jes:processor', function () {
             jeso.evaluate({
                 $if: { key1: { $gt: 0 } }
             });
-        }, /The operand of a "OP_IF" operator must be an array./);
+        }, /The right operand of a "OP_IF" operator must be an array./);
 
 
         should.throws(function () {
@@ -740,7 +740,7 @@ describe('jes:processor', function () {
                     { key1: { $lt: 2 } },
                 ]
             });
-        }, /The operand of a "OP_IF" operator must be either a 2-tuple or a 3-tuple./);
+        }, /The right operand of a "OP_IF" operator must be either a 2-tuple or a 3-tuple./);
     });
     it('pick', function () {
         let array = null;

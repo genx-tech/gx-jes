@@ -15,7 +15,15 @@ module.exports = function (api) {
                 ],
             },
         },
-        presets: ['@babel/env'],
+        presets: [
+            [
+                '@babel/env',
+                {
+                    useBuiltIns: 'usage',
+                    corejs: { version: '3.8', proposals: true },
+                },
+            ],
+        ],
         plugins: [
             [
                 'contract',

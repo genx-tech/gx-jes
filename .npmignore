@@ -14,4 +14,8 @@ examples
 docs
 coverage
 .nyc_output
-lib/**/unitSpecs
+lib/**/__test__
+.editorconfig
+.prettierignore
+rollup.config.js
+jsconfig.json

@@ -1,5 +1,5 @@
-const JES = require('../index');
-const { Types } = require('@genx/data');
+import JES from '../index';
+import { Types } from '@genx/data';
 
 describe('jes:extension', function () {  
     it('sanitize', function () {

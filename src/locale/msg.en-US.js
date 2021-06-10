@@ -1,4 +1,4 @@
-const config = require('../config');
+import config from '../config';
 
 const formatName = (name, prefix) => {
     const fullName = name == null ? prefix : formatPrefix(name, prefix);
@@ -131,5 +131,3 @@ messages.validationErrors = {
 };
 
 config.loadMessages(messages);
-
-module.exports = () => {};

@@ -1,4 +1,4 @@
-const JES = require('../index');
+import JES from '../index';
 
 describe('jes:validator', function () {
     it('equal', function () {

@@ -1,40 +1,34 @@
 // JSON Expression Syntax (JES)
-const _isEqual = require('lodash/isEqual');
-const _isInteger = require('lodash/isInteger');
-const _has = require('lodash/has');
-const _size = require('lodash/size');
-const _reduce = require('lodash/reduce');
-const _reverse = require('lodash/reverse');
-const _keys = require('lodash/keys');
-const _values = require('lodash/values');
-const _castArray = require('lodash/castArray');
-const _pick = require('lodash/pick');
-const _pickBy = require('lodash/pickBy');
-const _get = require('lodash/get');
-const _set = require('lodash/set');
-const _nth = require('lodash/nth');
-const _omit = require('lodash/omit');
-const _omitBy = require('lodash/omitBy');
-const _groupBy = require('lodash/groupBy');
-const _sortBy = require('lodash/sortBy');
-const _filter = require('lodash/filter');
-const _map = require('lodash/map');
-const _mapValues = require('lodash/mapValues');
-const _find = require('lodash/find');
-const _findIndex = require('lodash/findIndex');
+import _isEqual from'lodash/isEqual';
+import _isInteger from'lodash/isInteger';
+import _has from'lodash/has';
+import _size from'lodash/size';
+import _reduce from'lodash/reduce';
+import _reverse from'lodash/reverse';
+import _keys from'lodash/keys';
+import _values from'lodash/values';
+import _castArray from'lodash/castArray';
+import _pick from'lodash/pick';
+import _pickBy from'lodash/pickBy';
+import _nth from'lodash/nth';
+import _omit from'lodash/omit';
+import _omitBy from'lodash/omitBy';
+import _groupBy from'lodash/groupBy';
+import _sortBy from'lodash/sortBy';
+import _filter from'lodash/filter';
+import _map from'lodash/map';
+import _mapValues from'lodash/mapValues';
+import _find from'lodash/find';
+import _findIndex from'lodash/findIndex';
 
-const { ValidationError, InvalidArgument } = require('@genx/error');
-const { remap, isPlainObject } = require('@genx/july');
+import { ValidationError, InvalidArgument } from'@genx/error';
+import { remap, isPlainObject, get as _get, set as _set } from'@genx/july';
+
+import config from './config';
+import './locale/msg.en-US';
 
 const PFX_FOR_EACH = '|>'; // map each
 const PFX_WITH_ANY = '|*'; // with any
-
-const config = require('./config');
-
-if (!config.messages) {
-    const nothing = require('./locale/msg.en-US');
-    nothing(); // just avoid being truncated by bundler
-}
 
 const MSG = config.messages;
 
@@ -64,6 +58,7 @@ const OP_SIZE = ['$size', '$length', '$count'];
 const OP_SUM = ['$sum', '$total'];
 const OP_KEYS = ['$keys'];
 const OP_VALUES = ['$values'];
+const OP_ENTRIES = ['$entries', '$toArray'];
 const OP_GET_TYPE = ['$type'];
 
 //Manipulate processors
@@ -270,6 +265,7 @@ config.addProcessorToMap(OP_SUM, 'OP_SUM', true, (left) =>
 );
 config.addProcessorToMap(OP_KEYS, 'OP_KEYS', true, (left) => _keys(left));
 config.addProcessorToMap(OP_VALUES, 'OP_VALUES', true, (left) => _values(left));
+config.addProcessorToMap(OP_ENTRIES, 'OP_ENTRIES', true, (left) => _map(left, (value,key) => ({ key, value })));
 config.addProcessorToMap(OP_GET_TYPE, 'OP_GET_TYPE', true, (left) =>
     Array.isArray(left) ? 'array' : _isInteger(left) ? 'integer' : typeof left
 );
@@ -1032,4 +1028,4 @@ class JES {
     }
 }
 
-module.exports = JES;
+export default JES;

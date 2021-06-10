@@ -1,4 +1,4 @@
-const { InvalidArgument } = require('@genx/error');
+import { InvalidArgument } from '@genx/error';
 
 const validatorHandlers = {};
 const mapOfValidators = {};
@@ -73,4 +73,4 @@ const config = {
     loadMessages: (messages) => (config.messages = messages),
 };
 
-module.exports = config;
+export default config;

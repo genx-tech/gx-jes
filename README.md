@@ -1,5 +1,5 @@
 - [Builtin validation operators](#builtin-validation-operators)
-  * [$eq, $eql, $equal](##eq-eql-equal)
+  * [$eq, $eql, $equal](#eq-eql-equal)
   * [$ne, $neq, $notEqual](#-ne---neq---notequal)
   * [$not](#-not)
   * [$gt, $>, $greaterThan](#-gt-------greaterthan)

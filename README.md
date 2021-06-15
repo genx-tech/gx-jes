@@ -1,43 +1,3 @@
-- [Builtin validation operators](#builtin-validation-operators)
-  * [$eq, $eql, $equal](#eq-eql-equal)
-  * [$ne, $neq, $notEqual](#ne-neq-notequal)
-  * [$not](#not)
-  * [$gt, $>, $greaterThan](#gt-greaterthan)
-  * [$gte, $>=, $greaterThanOrEqual](#gte-greaterthanorequal)
-  * [$lt, $<, $lessThan](#lt-lessthan)
-  * [$lte, $<=, $lessThanOrEqual](#lte-lessthanorequal)
-  * [$in](#in)
-  * [$nin, $notIn](#nin-notin)
-  * [$exist, $exists, $notNull](#exist-exists-notnull)
-  * [$has, $match, $all](#has-match-all)
-  * [$any, $or, $either](#any-or-either)
-  * [$is, $typeOf](#is-typeof)
-  * [$hasKey, $hasKeys, $withKey, $withKeys](#haskey-haskeys-withkey-withkeys)
-  * [$startWith, $startsWith](#startwith-startswith)
-  * [$endWith, $endsWith](#endwith-endswith)
-  * [$eval, $apply](#eval-apply)
-- [Builtin processing operators](#builtin-processing-operators)
-  * [$size, $length, $count](#size-length-count)
-  * [$sum, $total](#sum-total)
-  * [$keys](#keys)
-  * [$values](#values)
-  * [$type](#type)
-  * ['$add', '$plus', '$inc'](#add-plus-inc-)
-  * ['$sub', '$subtract', '$minus', '$dec'](#sub-subtract-minus-dec-)
-  * ['$mul', '$multiply', '$times'](#mul-multiply-times-)
-  * ['$div', '$divide'](#div-divide-)
-  * ['$set', '$=', '$value'](#set-value-)
-  * ['$addItem', '$override'](#additem-override-)
-  * [$pick](#pick)
-  * [$omit](#omit)
-  * ['$at', '$getByIndex', '$nth'](#at-getbyindex-nth-)
-  * ['$of', '$getByKey'](#of-getbykey-)
-  * ['$remap', '$mapKeys'](#remap-mapkeys-)
-  * ['$json', '$toJSON', '$stringify'](#json-tojson-stringify-)
-  * ['$object', '$parseJSON'](#object-parsejson-)
-- [License](#license)
-
-
 
 
 
@@ -157,6 +117,54 @@ jeso.evaluate([
     },
 ]);
 ```
+
+
+- [Builtin validation operators](#builtin-validation-operators)
+  * [$eq, $eql, $equal](#eq-eql-equal)
+  * [$ne, $neq, $notEqual](#ne-neq-notequal)
+  * [$not](#not)
+  * [$gt, $>, $greaterThan](#gt-greaterthan)
+  * [$gte, $>=, $greaterThanOrEqual](#gte-greaterthanorequal)
+  * [$lt, $<, $lessThan](#lt-lessthan)
+  * [$lte, $<=, $lessThanOrEqual](#lte-lessthanorequal)
+  * [$in](#in)
+  * [$nin, $notIn](#nin-notin)
+  * [$exist, $exists, $notNull](#exist-exists-notnull)
+  * [$has, $match, $all](#has-match-all)
+  * [$any, $or, $either](#any-or-either)
+  * [$is, $typeOf](#is-typeof)
+  * [$hasKey, $hasKeys, $withKey, $withKeys](#haskey-haskeys-withkey-withkeys)
+  * [$startWith, $startsWith](#startwith-startswith)
+  * [$endWith, $endsWith](#endwith-endswith)
+  * [$eval, $apply](#eval-apply)
+- [Builtin processing operators](#builtin-processing-operators)
+  * [$size, $length, $count](#size-length-count)
+  * [$sum, $total](#sum-total)
+  * [$keys](#keys)
+  * [$values](#values)
+  * [$type](#type)
+  * ['$add', '$plus', '$inc'](#add-plus-inc-)
+  * ['$sub', '$subtract', '$minus', '$dec'](#sub-subtract-minus-dec-)
+  * ['$mul', '$multiply', '$times'](#mul-multiply-times-)
+  * ['$div', '$divide'](#div-divide-)
+  * ['$set', '$=', '$value'](#set-value-)
+  * ['$addItem', '$override'](#additem-override-)
+  * [$pick](#pick)
+  * [$omit](#omit)
+  * ['$at', '$getByIndex', '$nth'](#at-getbyindex-nth-)
+  * ['$of', '$getByKey'](#of-getbykey-)
+  * ['$remap', '$mapKeys'](#remap-mapkeys-)
+  * ['$json', '$toJSON', '$stringify'](#json-tojson-stringify-)
+  * ['$object', '$parseJSON'](#object-parsejson-)
+- [License](#license)
+
+
+
+
+
+
+
+
 
 ## Builtin validation operators
 

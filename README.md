@@ -3,52 +3,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # @genx/jes
 
 JSON Expression Syntax (JES)
@@ -362,9 +316,9 @@ JES.match(..., {
 Get the size of array
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $size: [1,2,3,4] });
-//matched: 4, unmatchedReason: undefined
+let array = {1,2,3,4};
+Result = JES.evaluate(array, '$size' );
+//result: 4
 ```
 
 ### $sum, $total
@@ -372,27 +326,22 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Get the sum of array
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $size: [1,2,3,4] });
-//matched: 10, unmatchedReason: undefined
+let array = {1,2,3,4}
+Result = JES.evaluate(array, '$sum' );
+//result: 10
 ```
 
 ### $keys
 
 Creates an array of the own enumerable property names of `object`.
 
-```
-function Foo(){
+``` 
+let Foo = {
     this.a = 1;
     this.c = 2;
 }
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $keys: new Foo });
-//matched: ['a','c'], unmatchedReason: undefined
-
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $keys: "abcd" });
-//matched: ['0','1','2','3'], unmatchedReason: undefined
+Result = JES.evaluate(Foo, '$keys' );
+//result: ['a','c']
 ```
 
 ### $values
@@ -400,17 +349,12 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Creates an array of the own enumerable string keyed property values of `object`.
 
 ```
-function Foo(){
+let Foo = {
     this.a = 1;
     this.c = 2;
 }
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $values: new Foo });
-//matched: [1,2], unmatchedReason: undefined
-
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $values: "abcd" });
-//matched: ['a','b','c','d'], unmatchedReason: undefined
+Result = JES.evaluate(Foo, '$values' );
+//result: [1,2]
 ```
 
 ### $type
@@ -418,12 +362,10 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Type of
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $type: [1,2,3,4] });
-//matched: 'object', unmatchedReason: undefined
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $type: 1 });
-//matched: 'number', unmatchedReason: undefined
+Result = JES.evaluate({ $type: [1,2,3,4] });
+//result: 'object'
+Result = JES.evaluate({ '$type': 1 });
+//result: 'number'
 ```
 
 ### '$add', '$plus', '$inc'
@@ -431,10 +373,8 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Add
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    1,
-    { $add: 1 });
-//matched: 2, unmatchedReason: undefined
+Result = JES.evaluate(1,{ '$add': 1 });
+//result: 2
 ```
 
 ### '$sub', '$subtract', '$minus', '$dec'
@@ -442,10 +382,8 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Substact
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    2,
-    { $sub: 1 });
-//matched: 1, unmatchedReason: undefined
+Result = JES.evaluate(2,{ '$sub': 1 });
+//result: 1
 ```
 
 ### '$mul', '$multiply', '$times'
@@ -453,10 +391,8 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Multiply
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    2,
-    { $mul: 1 });
-//matched: 2, unmatchedReason: undefined
+Result = JES.evaluate(2,{ '$mul': 1 });
+//result: 2
 ```
 
 ### '$div', '$divide'
@@ -464,10 +400,8 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Divide
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    2,
-    { $div: 1 });
-//matched: 2, unmatchedReason: undefined
+Result = JES.evaluate(2,{ '$div': 1 });
+//result: 2
 ```
 
 ### '$set', '$=', '$value'
@@ -475,10 +409,9 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Set value
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    [1,2,3],
-    { $set: 4 });
-//matched: 4, unmatchedReason: undefined
+let array = [1,2,3];
+Result = JES.evaluate(array, { '$set': 4 });
+//result: 4
 ```
 
 ### '$addItem', '$override'
@@ -486,10 +419,9 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Add item
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    [{'a':1,'b':2},{'a':3,'b':4}],
-    { $addItem: ['c', '5'] });
-//matched: [{'a':1,'b':2,'c':5},{'a':3,'b':4,'c':5}], unmatchedReason: undefined
+let obj = [{'a':1,'b':2},{'a':3,'b':4}];
+Result = JES.evaluate(obj, { '$addItem': ['c', '5'] });
+//result: [{'a':1,'b':2,'c':5},{'a':3,'b':4,'c':5}]
 ```
 
 ### $pick
@@ -497,13 +429,13 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Creates an object composed of the `object` properties `predicate` returns truthy for. The predicate is invoked with two arguments: (value, key).
 
 ```
-function isNumber(value) {
+let array = {
   return typeof value == 'number' ||
     (isObjectLike(value) && baseGetTag(value) == numberTag);
 }
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $pick: ({'a':1,'b':'2','c':3},isNumber) });
-//matched: {'a':1,'c':3}, unmatchedReason: undefined
+
+Result = JES.evaluate(arrary,  { '$pick': ({'a':1,'b':'2','c':3},isNumber) });
+//result: {'a':1,'c':3}
 ```
 
 ### $omit
@@ -511,9 +443,9 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 The opposite of `_.pick`; this method creates an object composed of the own and inherited enumerable property paths of `object` that are not omitted.
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $omit: ({'a':1,'b':'2','c':3},['a','c']) });
-//matched: {'b':2}, unmatchedReason: undefined
+let obj = {'a':1,'b':'2','c':3};
+Result = JES.evaluate(array, {'$omit':['a','c']});
+//result: {'b':2}
 ```
 
 ### '$at', '$getByIndex', '$nth'
@@ -521,12 +453,11 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Gets the element at index `n` of `array`. If `n` is negative, the nth element from the end is returned.
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $at: ([0,1,2,3,4,5],1) });
-//matched: 1, unmatchedReason: undefined
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $at: ([0,1,2,3,4,5],-1) });
-//matched: 5, unmatchedReason: undefined
+let array = [0,1,2,3,4,5];
+Result = JES.evaluate(array, {'$at': 1});
+//result: 1
+Result = JES.evaluate(obj,  {'$at': -1});
+//matched: 5
 ```
 
 ### '$of', '$getByKey'
@@ -534,12 +465,12 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Gets the value at `path` of `object`. If the resolved value is `undefined`, the `defaultValue` is returned in its place.
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $of: ({ 'a': [{ 'b': { 'c': 3 } }] },['a', '0', 'b', 'c']) });
-//matched: 3, unmatchedReason: undefined
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $of: ({ 'a': [{ 'b': { 'c': 3 } }] },a.b.c,DEFAULT_VALUE) });
-//matched: DEFAULT_VALUE, unmatchedReason: undefined
+Result = JES.evaluate(
+     { 'a': [{ 'b': { 'c': 3 } }] }, '$of':['a', '0', 'b', 'c'] );
+//result: 3
+Result = JES.evaluate(
+     { 'a': [{ 'b': { 'c': 3 } }] }, '$of':['a.b.c','DEFAULT_VALUE'] );
+//result: DEFAULT_VALUE
 ```
 
 ### '$remap', '$mapKeys'
@@ -547,10 +478,9 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 remap the name of object
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { x: 5, y: 6, z: 7 },
-    { $remap: x: 'a' });
-//matched: {a:5}, unmatchedReason: undefined
+let obj = { x: 5, y: 6, z: 7 };
+result = JES.evaluate(array, '$remap');
+//result: {a:5}
 ```
 
 ### '$json', '$toJSON', '$stringify'
@@ -558,9 +488,9 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Stringify the value (from Object to JSON).
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $json: { x: 5, y: 6 } });
-//matched: '{'x':5,'y':6}', unmatchedReason: undefined
+let obj = { x: 5, y: 6 };
+result = JES.evaluate(obj, '$json');
+//result: {'x':5,'y':6}
 ```
 
 ### '$object', '$parseJSON'
@@ -568,10 +498,26 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 Parse the value into object (from JSON to Object).
 
 ```
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $object: '{'result':true, 'count':42}' });
-//matched: { result: true, count: 42 }, unmatchedReason: undefined
+let obj = {'result':true, 'count':42};
+result = JES.evaluate(obj,'$object' );
+//result: { result: true, count: 42 }
 ```
+
+
+### '$toArray'
+
+Parse the object into array.
+
+```
+let obj = {'user':100};
+result = JES.evaluate({ obj , '$toArray'});
+//result: { category: 'user', item: 100  }
+```
+
+
+
+
+
 
 ## License
 

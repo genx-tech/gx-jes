@@ -1,8 +1,5 @@
 
 
-
-
-
 # @genx/jes
 
 JSON Expression Syntax (JES)
@@ -316,32 +313,50 @@ JES.match(..., {
 Get the size of array
 
 ```
-let array = {1,2,3,4};
+let array = [1,2,3,4];
 Result = JES.evaluate(array, '$size' );
 //result: 4
 ```
+
+```
+let obj = { 'k1': 10, 'k2': 20 };
+Result = JES.evaluate(obj, '$size' );
+//result: 2
+```
+
+```
+let str = 'abcd';
+Result = JES.evaluate(str, '$size' );
+//result: 4
+```
+
+
 
 ### $sum, $total
 
 Get the sum of array
 
 ```
-let array = {1,2,3,4}
-Result = JES.evaluate(array, '$sum' );
-//result: 10
+let obj = {'key1':2000, 'key2':2000 };
+Result = JES.evaluate(obj, '$sum' );
+//result: 4000
 ```
+
+```
+let array = [2000, 1000];
+Result = JES.evaluate(array, '$sum' );
+//result: 3000
+```
+
 
 ### $keys
 
 Creates an array of the own enumerable property names of `object`.
 
 ``` 
-let Foo = {
-    this.a = 1;
-    this.c = 2;
-}
-Result = JES.evaluate(Foo, '$keys' );
-//result: ['a','c']
+let obj = { 'id': 1, 'user' : 2 };
+Result = JES.evaluate(obj, '$keys' );
+//result: ['id','user']
 ```
 
 ### $values
@@ -349,23 +364,19 @@ Result = JES.evaluate(Foo, '$keys' );
 Creates an array of the own enumerable string keyed property values of `object`.
 
 ```
-let Foo = {
-    this.a = 1;
-    this.c = 2;
-}
-Result = JES.evaluate(Foo, '$values' );
+let obj = {'id' : 1,'user' : 2};
+Result = JES.evaluate(obj, '$values' );
 //result: [1,2]
 ```
 
 ### $type
 
-Type of
+Evlaute the type of input
 
 ```
-Result = JES.evaluate({ $type: [1,2,3,4] });
-//result: 'object'
-Result = JES.evaluate({ '$type': 1 });
-//result: 'number'
+let array = [1,2,3,4];
+Result = JES.evaluate(array, '$type' );
+//result: 'array'
 ```
 
 ### '$add', '$plus', '$inc'
@@ -373,8 +384,9 @@ Result = JES.evaluate({ '$type': 1 });
 Add
 
 ```
-Result = JES.evaluate(1,{ '$add': 1 });
-//result: 2
+let obj = {'key1':2000}
+Result = JES.evaluate(obj, {'$add': 1 });
+//result: {'key1':2001}
 ```
 
 ### '$sub', '$subtract', '$minus', '$dec'
@@ -382,7 +394,8 @@ Result = JES.evaluate(1,{ '$add': 1 });
 Substact
 
 ```
-Result = JES.evaluate(2,{ '$sub': 1 });
+let obj = {'key1':2};
+Result = JES.evaluate(obj, {'$sub': 1 });
 //result: 1
 ```
 
@@ -391,8 +404,9 @@ Result = JES.evaluate(2,{ '$sub': 1 });
 Multiply
 
 ```
-Result = JES.evaluate(2,{ '$mul': 1 });
-//result: 2
+let obj = {'key1':2000};
+Result = JES.evaluate(obj, {'$mul': 2 });
+//result: {'key1':4000}
 ```
 
 ### '$div', '$divide'
@@ -400,8 +414,9 @@ Result = JES.evaluate(2,{ '$mul': 1 });
 Divide
 
 ```
-Result = JES.evaluate(2,{ '$div': 1 });
-//result: 2
+let obj = {'key1':2000};
+Result = JES.evaluate(obj, { '$div': 2 });
+//result: {'key1':1000}
 ```
 
 ### '$set', '$=', '$value'
@@ -409,9 +424,9 @@ Result = JES.evaluate(2,{ '$div': 1 });
 Set value
 
 ```
-let array = [1,2,3];
-Result = JES.evaluate(array, { '$set': 4 });
-//result: 4
+let obj = {'a':1,'b':2};
+Result = JES.evaluate(obj, { '$set': 'new' });
+//result: 'new'
 ```
 
 ### '$addItem', '$override'
@@ -419,9 +434,9 @@ Result = JES.evaluate(array, { '$set': 4 });
 Add item
 
 ```
-let obj = [{'a':1,'b':2},{'a':3,'b':4}];
-Result = JES.evaluate(obj, { '$addItem': ['c', '5'] });
-//result: [{'a':1,'b':2,'c':5},{'a':3,'b':4,'c':5}]
+let obj = {'a':1,'b':2};
+Result = JES.evaluate(obj, { '$addItem': ['c', '3'] });
+//result: {'a':1,'b':2,'c':3}
 ```
 
 ### $pick
@@ -429,23 +444,27 @@ Result = JES.evaluate(obj, { '$addItem': ['c', '5'] });
 Creates an object composed of the `object` properties `predicate` returns truthy for. The predicate is invoked with two arguments: (value, key).
 
 ```
-let array = {
-  return typeof value == 'number' ||
-    (isObjectLike(value) && baseGetTag(value) == numberTag);
-}
-
-Result = JES.evaluate(arrary,  { '$pick': ({'a':1,'b':'2','c':3},isNumber) });
+let obj = {'a':1, 'b':2, 'c':3  };
+Result = JES.evaluate(obj,  { '$pick': { $not: [ 'b' ] } ) });
 //result: {'a':1,'c':3}
 ```
+
+```
+let obj = {'a':1, 'b':2, 'c':3  };
+Result = JES.evaluate(obj,  { '$pick': [ 'a', 'c' ] ) });
+//result: {'a':1,'c':3}
+```
+
+
 
 ### $omit
 
 The opposite of `_.pick`; this method creates an object composed of the own and inherited enumerable property paths of `object` that are not omitted.
 
 ```
-let obj = {'a':1,'b':'2','c':3};
-Result = JES.evaluate(array, {'$omit':['a','c']});
-//result: {'b':2}
+let obj = {a:1,b:2,c:3};
+Result = JES.evaluate(obj, {'$omit': ['a']});
+//result: {'b':2, 'c':3}
 ```
 
 ### '$at', '$getByIndex', '$nth'
@@ -457,7 +476,7 @@ let array = [0,1,2,3,4,5];
 Result = JES.evaluate(array, {'$at': 1});
 //result: 1
 Result = JES.evaluate(obj,  {'$at': -1});
-//matched: 5
+//result: 5
 ```
 
 ### '$of', '$getByKey'
@@ -465,22 +484,26 @@ Result = JES.evaluate(obj,  {'$at': -1});
 Gets the value at `path` of `object`. If the resolved value is `undefined`, the `defaultValue` is returned in its place.
 
 ```
-Result = JES.evaluate(
-     { 'a': [{ 'b': { 'c': 3 } }] }, '$of':['a', '0', 'b', 'c'] );
-//result: 3
-Result = JES.evaluate(
-     { 'a': [{ 'b': { 'c': 3 } }] }, '$of':['a.b.c','DEFAULT_VALUE'] );
-//result: DEFAULT_VALUE
+obj = {'a':1, 'b':2, 'c':3 };
+Result = JES.evaluate(obj, {'$of': 'a'} );
+//result: 1
 ```
 
 ### '$remap', '$mapKeys'
 
-remap the name of object
+remap the keys of an object
 
 ```
-let obj = { x: 5, y: 6, z: 7 };
-result = JES.evaluate(array, '$remap');
-//result: {a:5}
+let obj = { 'id': 1, 'user':100, 'agency': 1 };
+result = JES.evaluate(obj, {'$remap':{user:'username'}});
+//result: {'id': 1, 'username':100, 'agency': 1}
+```
+
+
+```
+let array = [{ 'id': 1, 'user':100, 'agency': 1 }];
+result = JES.evaluate(array, {'|>$remap':{user:'username'}});
+//result: [{'id': 1, 'username':100, 'agency': 1}]
 ```
 
 ### '$json', '$toJSON', '$stringify'
@@ -488,9 +511,9 @@ result = JES.evaluate(array, '$remap');
 Stringify the value (from Object to JSON).
 
 ```
-let obj = { x: 5, y: 6 };
+let obj = { 'x': 5, 'y': 6 };
 result = JES.evaluate(obj, '$json');
-//result: {'x':5,'y':6}
+//result: '{"x":5,"y":6}'
 ```
 
 ### '$object', '$parseJSON'
@@ -498,9 +521,9 @@ result = JES.evaluate(obj, '$json');
 Parse the value into object (from JSON to Object).
 
 ```
-let obj = {'result':true, 'count':42};
-result = JES.evaluate(obj,'$object' );
-//result: { result: true, count: 42 }
+let json = '{"result":true}';
+result = JES.evaluate(json,'$object' );
+//result: { 'result': true }
 ```
 
 
@@ -511,7 +534,7 @@ Parse the object into array.
 ```
 let obj = {'user':100};
 result = JES.evaluate({ obj , '$toArray'});
-//result: { category: 'user', item: 100  }
+//result: [ {'user':100   }  ]
 ```
 
 

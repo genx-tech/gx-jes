@@ -77,13 +77,14 @@
         "@genx/july": "^0.2.7"
     },
     "devDependencies": {
-        "@genx/app": "*",
-        "@genx/data": "*",
         "@babel/core": "^7.12.13",
         "@babel/eslint-parser": "^7.12.13",
         "@babel/eslint-plugin": "^7.12.13",
         "@babel/plugin-proposal-class-properties": "^7.12.1",
+        "@babel/register": "^7.14.5",
         "@commitlint/config-conventional": "^11.0.0",
+        "@genx/app": "*",
+        "@genx/data": "*",
         "@release-it/conventional-changelog": "^2.0.0",
         "@rollup/plugin-babel": "^5.2.3",
         "@rollup/plugin-node-resolve": "^11.1.1",

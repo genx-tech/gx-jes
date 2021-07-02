@@ -11,11 +11,14 @@ module.exports = function (api) {
                     targets: {
                         node: targetLTSVersion,
                     },
+                    modules: 'cjs',
                     exclude: ['@babel/plugin-transform-regenerator'],
                 },
             ],
         ],
         ignore: ['node_modules'],
+        minified: isProduction,
+        comments: !isProduction,
         plugins: [
             [
                 'contract',
@@ -25,6 +28,7 @@ module.exports = function (api) {
                 },
             ],
             '@babel/plugin-proposal-class-properties',
+            "add-module-exports"
         ],
     };
 };

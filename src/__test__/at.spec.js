@@ -24,7 +24,7 @@ describe('jes:processor', function () {
         );
     });
 
-    it.only('array', function () {
+    it('array', function () {
         let array = [1,2,3];
         
         let transformed = JES.evaluate(array, {'$at' : 0});

@@ -1,28 +1,28 @@
 // JSON Expression Syntax (JES)
-import _isEqual from'lodash/isEqual';
-import _isInteger from'lodash/isInteger';
-import _has from'lodash/has';
-import _size from'lodash/size';
-import _reduce from'lodash/reduce';
-import _reverse from'lodash/reverse';
-import _keys from'lodash/keys';
-import _values from'lodash/values';
-import _castArray from'lodash/castArray';
-import _pick from'lodash/pick';
-import _pickBy from'lodash/pickBy';
-import _nth from'lodash/nth';
-import _omit from'lodash/omit';
-import _omitBy from'lodash/omitBy';
-import _groupBy from'lodash/groupBy';
-import _sortBy from'lodash/sortBy';
-import _filter from'lodash/filter';
-import _map from'lodash/map';
-import _mapValues from'lodash/mapValues';
-import _find from'lodash/find';
-import _findIndex from'lodash/findIndex';
+import _isEqual from 'lodash/isEqual';
+import _isInteger from 'lodash/isInteger';
+import _has from 'lodash/has';
+import _size from 'lodash/size';
+import _reduce from 'lodash/reduce';
+import _reverse from 'lodash/reverse';
+import _keys from 'lodash/keys';
+import _values from 'lodash/values';
+import _castArray from 'lodash/castArray';
+import _pick from 'lodash/pick';
+import _pickBy from 'lodash/pickBy';
+import _nth from 'lodash/nth';
+import _omit from 'lodash/omit';
+import _omitBy from 'lodash/omitBy';
+import _groupBy from 'lodash/groupBy';
+import _sortBy from 'lodash/sortBy';
+import _filter from 'lodash/filter';
+import _map from 'lodash/map';
+import _mapValues from 'lodash/mapValues';
+import _find from 'lodash/find';
+import _findIndex from 'lodash/findIndex';
 
-import { ValidationError, InvalidArgument } from'@genx/error';
-import { remap, isPlainObject, get as _get, set as _set } from'@genx/july';
+import { ValidationError, InvalidArgument } from '@genx/error';
+import { remap, isPlainObject, get as _get, set as _set } from '@genx/july';
 
 import config from './config';
 import './locale/msg.en-US';
@@ -60,6 +60,7 @@ const OP_KEYS = ['$keys'];
 const OP_VALUES = ['$values'];
 const OP_ENTRIES = ['$entries', '$toArray'];
 const OP_GET_TYPE = ['$type'];
+const OP_CAST_ARRAY = ['$castArray'];
 
 //Manipulate processors
 const OP_ADD = ['$add', '$plus', '$inc'];
@@ -78,6 +79,7 @@ const OP_GROUP = ['$group', '$groupBy'];
 const OP_SORT = ['$sort', '$orderBy', '$sortBy'];
 const OP_REVERSE = ['$reverse'];
 const OP_EVAL = ['$eval', '$apply'];
+const OP_JOIN = ['$join'];
 const OP_MERGE = ['$merge'];
 const OP_FILTER = ['$filter', '$select']; // filter by value
 const OP_REMAP = ['$remap', '$mapKeys'];
@@ -265,7 +267,12 @@ config.addProcessorToMap(OP_SUM, 'OP_SUM', true, (left) =>
 );
 config.addProcessorToMap(OP_KEYS, 'OP_KEYS', true, (left) => _keys(left));
 config.addProcessorToMap(OP_VALUES, 'OP_VALUES', true, (left) => _values(left));
-config.addProcessorToMap(OP_ENTRIES, 'OP_ENTRIES', true, (left) => _map(left, (value,key) => ({ key, value })));
+config.addProcessorToMap(OP_ENTRIES, 'OP_ENTRIES', true, (left) =>
+    _map(left, (value, key) => ({ key, value }))
+);
+config.addProcessorToMap(OP_CAST_ARRAY, 'OP_CAST_ARRAY', true, (left) =>
+    left == null ? null : Array.isArray(left) ? left : [left]
+);
 config.addProcessorToMap(OP_GET_TYPE, 'OP_GET_TYPE', true, (left) =>
     Array.isArray(left) ? 'array' : _isInteger(left) ? 'integer' : typeof left
 );
@@ -407,6 +414,13 @@ config.addProcessorToMap(OP_SORT, 'OP_SORT', false, (left, right) =>
     _sortBy(left, right)
 );
 config.addProcessorToMap(OP_EVAL, 'OP_EVAL', false, evaluateExpr);
+config.addProcessorToMap(OP_JOIN, 'OP_JOIN', false, (left, right) => {
+    if (left == null) return null;
+    if (!Array.isArray(left)) {
+        return left.toString();
+    }
+    return left.join(right.toString());
+});
 config.addProcessorToMap(
     OP_MERGE,
     'OP_MERGE',

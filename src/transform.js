@@ -6,26 +6,13 @@ import _mapValues from 'lodash/mapValues';
 
 import { get as _get, set as _set } from '@genx/july';
 
-import config from './config';
+import config, { getChildContext } from './config';
 import ops from './transformerOperators';
 
 const MSG = config.messages;
 
 const PFX_MAP = '|>'; // map
 const PFX_REDUCE = '|+'; // reduce 1. intermediate = result op [key, value] 2. result = result op intermediate
-
-export const getChildContext = (
-    context,
-    currentValue,
-    childKey,
-    childValue
-) => ({
-    ...context,
-    prefix: MSG.formatPrefix(childKey, context.prefix),
-    $$PARENT: currentValue,
-    $$CURRENT: childValue,
-    $$KEY: childKey,
-});
 
 /**
  * Apply a bianry operator to a value
@@ -90,26 +77,13 @@ function applyOperator(currentValue, rightValue, [op, isUnary], context) {
  * @param {*} context
  * @returns
  */
-function transformCollection(
-    currentValue,
-    collectionOp,
-    opMeta,
-    expectedFieldValue,
-    context
-) {
+function transformCollection(currentValue, collectionOp, opMeta, expectedFieldValue, context) {
     const isUnary = opMeta[1];
 
     switch (collectionOp) {
         case PFX_MAP:
-            return (Array.isArray(currentValue) ? _map : _mapValues)(
-                currentValue,
-                (item, key) =>
-                    applyOperator(
-                        item,
-                        expectedFieldValue,
-                        opMeta,
-                        getChildContext(context, currentValue, key, item)
-                    )
+            return (Array.isArray(currentValue) ? _map : _mapValues)(currentValue, (item, key) =>
+                applyOperator(item, expectedFieldValue, opMeta, getChildContext(context, currentValue, key, item))
             );
 
         case PFX_REDUCE:
@@ -118,13 +92,7 @@ function transformCollection(
                 (isUnary && expectedFieldValue.length !== 1) ||
                 (!isUnary && expectedFieldValue.length !== 2)
             ) {
-                throw new Error(
-                    MSG.INVALID_COLLECTION_OP_EXPR(
-                        ops.OP_REDUCE,
-                        opMeta[0],
-                        expectedFieldValue
-                    )
-                );
+                throw new Error(MSG.INVALID_COLLECTION_OP_EXPR(ops.REDUCE, opMeta[0], expectedFieldValue));
             }
 
             return _reduce(
@@ -154,14 +122,17 @@ function transformCollection(
  *
  * @param {*} currentValue
  * @param {*} expr
- * @param {*} prefix
  * @param {*} context
  * @param {boolean} replaceLeft - Whether the expression will replace the left value chain,like a setOp
  */
 function transform(currentValue, expr, context, replaceLeft) {
+    if (expr == null) {
+        return replaceLeft ? expr : currentValue;
+    }
+
     if (context == null) {
         context = {
-            prefix: null,
+            path: null,
             $$ROOT: currentValue,
             $$PARENT: null,
             $$CURRENT: currentValue,
@@ -171,15 +142,10 @@ function transform(currentValue, expr, context, replaceLeft) {
 
     if (Array.isArray(expr)) {
         if (replaceLeft) {
-            return expr.map((item) =>
-                transform(undefined, item, { ...context }, true)
-            );
+            return expr.map((item) => transform(undefined, item, { ...context }, true));
         }
 
-        return expr.reduce(
-            (result, exprItem) => transform(result, exprItem, { ...context }),
-            currentValue
-        );
+        return expr.reduce((result, exprItem) => transform(result, exprItem, { ...context }), currentValue);
     }
 
     const typeExpr = typeof expr;
@@ -189,7 +155,7 @@ function transform(currentValue, expr, context, replaceLeft) {
             return expr;
         }
 
-        throw new Error(MSG.SYNTAX_INVALID_EXPR(expr));
+        return expr ? currentValue : undefined;
     }
 
     if (typeExpr === 'number' || typeExpr === 'bigint') {
@@ -232,9 +198,7 @@ function transform(currentValue, expr, context, replaceLeft) {
     }
 
     if (replaceLeft) {
-        return _mapValues(expr, (item) =>
-            transform(undefined, item, context, true)
-        );
+        return _mapValues(expr, (item) => transform(undefined, item, context, true));
     }
 
     let result,
@@ -260,12 +224,7 @@ function transform(currentValue, expr, context, replaceLeft) {
                     throw new Error(MSG.SYNTAX_OP_NOT_ALONE);
                 }
 
-                result = applyOperator(
-                    currentValue,
-                    expectedFieldValue,
-                    opMeta,
-                    context
-                );
+                result = applyOperator(currentValue, expectedFieldValue, opMeta, context);
                 hasOperator = true;
                 continue;
             }
@@ -287,13 +246,7 @@ function transform(currentValue, expr, context, replaceLeft) {
                     throw new Error(MSG.SYNTAX_OP_NOT_ALONE);
                 }
 
-                result = transformCollection(
-                    currentValue,
-                    collectionOp,
-                    opMeta,
-                    expectedFieldValue,
-                    context
-                );
+                result = transformCollection(currentValue, collectionOp, opMeta, expectedFieldValue, context);
                 hasOperator = true;
                 continue;
             }
@@ -307,11 +260,7 @@ function transform(currentValue, expr, context, replaceLeft) {
 
         //pick a field and then apply manipulation
         let actualFieldValue =
-            currentValue != null
-                ? complexKey
-                    ? _get(currentValue, fieldName)
-                    : currentValue[fieldName]
-                : undefined;
+            currentValue != null ? (complexKey ? _get(currentValue, fieldName) : currentValue[fieldName]) : undefined;
 
         const childFieldValue = transform(
             actualFieldValue,

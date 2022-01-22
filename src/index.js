@@ -8,7 +8,18 @@ import transform from './transformers';
  */
 class JES {
     static config = config;
-    static match = validate;
+    static match = (actual, expectedJES) => {
+        const reason = validate(actual, expectedJES, {
+            throwError: false,
+            abortEarly: true,
+            plainError: true,
+        });
+        if (reason === true) {
+            return [true];
+        }
+
+        return [false, reason];
+    };
     static evaluate = transform;
 
     /**
@@ -26,7 +37,7 @@ class JES {
      */
     match(expected) {
         validate(this.value, expected);
-        return true;
+        return this;
     }
 
     /**

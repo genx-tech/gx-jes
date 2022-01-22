@@ -9,10 +9,7 @@ export default class ValidationError extends Error {
         _castArray(errorOrErrors).forEach((err) => {
             if (err.name === 'ValidationError') {
                 errors.push(...err.errors);
-                inner = [
-                    ...inner,
-                    ...(err.inner.length > 0 ? err.inner : [err]),
-                ];
+                inner = [...inner, ...(err.inner.length > 0 ? err.inner : [err])];
             } else {
                 errors.push(err);
                 if (err.inner && Array.isArray(err.inner)) {
@@ -21,9 +18,7 @@ export default class ValidationError extends Error {
             }
         });
 
-        super(
-            errors.length > 1 ? messages.MULTI_ERRORS(errors.length) : errors[0]
-        );
+        super(errors.length > 1 ? messages.MULTI_ERRORS(errors.length) : errors[0]);
 
         this.name = 'ValidationError';
         this.value = value;

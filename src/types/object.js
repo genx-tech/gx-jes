@@ -23,18 +23,12 @@ export function validateBySchema(
     }
 
     const errors = [];
-    const _options =
-        !abortEarly && throwError ? { ...options, throwError: false } : options;
+    const _options = !abortEarly && throwError ? { ...options, throwError: false } : options;
 
     _find(schema, (validationObject, fieldName) => {
-        const fieldValue = useFieldPath
-            ? _get(value, fieldName)
-            : value?.[fieldName];
+        const fieldValue = useFieldPath ? _get(value, fieldName) : value?.[fieldName];
         const reason = validate(fieldValue, validationObject, _options, {
-            path: messages.formatPrefix(
-                mapOfNames?.[fieldName] ?? fieldName,
-                context.path
-            ),
+            path: messages.makePath(mapOfNames?.[fieldName] ?? fieldName, context.path),
             $$PARENT: value,
             $$CURRENT: fieldValue,
         });

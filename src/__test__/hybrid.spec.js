@@ -1,6 +1,6 @@
-import JES from '../index';
+import JES from '..';
 
-describe('jes:processor', function () {
+describe('transformer:hybrid', function () {
     it('eval', function () {
         let obj = {
             key1: 2000,
@@ -72,7 +72,7 @@ describe('jes:processor', function () {
             excluded: false,
             newItem: { $set: 'new' },
             highestScore: [
-                '$$CURRENT.items',
+                '$$PARENT.items',
                 {
                     $sortBy: 'score',
                 },
@@ -118,7 +118,10 @@ describe('jes:processor', function () {
             { name: 'agency1', other: 'any' },
         ]);
 
-        transformed = JES.evaluate(obj, ['$toArray', { '|>$remap': { key: 'category', value: 'item' } }]);
+        transformed = JES.evaluate(obj, [
+            '$toArray',
+            { '|>$remap': { k: 'category', v: 'item' } },
+        ]);
         transformed.should.be.eql([
             { category: 'id', item: 1 },
             { category: 'user', item: 100 },
@@ -164,8 +167,8 @@ describe('jes:processor', function () {
 
         let transformed = JES.evaluate(array, {
             '|>$apply': {
-                user: ['$$CURRENT.:user', { $pick: ['email'] }],
-                agency: ['$$CURRENT.:agency', { $pick: ['name'] }],
+                user: ['$$PARENT.:user', { $pick: ['email'] }],
+                agency: ['$$PARENT.:agency', { $pick: ['name'] }],
             },
         });
 
@@ -224,8 +227,8 @@ describe('jes:processor', function () {
                         },
                     },
                     {
-                        '@user': ['$$CURRENT.:user', { $pick: ['email'] }],
-                        '@agency': ['$$CURRENT.:agency', { $pick: ['name'] }],
+                        '@user': ['$$PARENT.:user', { $pick: ['email'] }],
+                        '@agency': ['$$PARENT.:agency', { $pick: ['name'] }],
                     },
                 ],
             },
@@ -243,9 +246,9 @@ describe('jes:processor', function () {
                             },
                         },
                         {
-                            '@user': ['$$CURRENT.:user', { $pick: ['email'] }],
+                            '@user': ['$$PARENT.:user', { $pick: ['email'] }],
                             '@agency': [
-                                '$$CURRENT.:agency',
+                                '$$PARENT.:agency',
                                 { $pick: ['name'] },
                             ],
                         },
@@ -322,8 +325,8 @@ describe('jes:processor', function () {
                         },
                     },
                     {
-                        '@user': ['$$CURRENT.:user', { $pick: ['email'] }],
-                        '@agency': ['$$CURRENT.:agency', { $pick: ['name'] }],
+                        '@user': ['$$PARENT.:user', { $pick: ['email'] }],
+                        '@agency': ['$$PARENT.:agency', { $pick: ['name'] }],
                     },
                 ],
             },
@@ -374,7 +377,7 @@ describe('jes:processor', function () {
                     },
                 ],
             });
-        }, /The value to take a "OP_ADD_ITEM" operator must be either an object or an array./);
+        }, 'The value to take a "Add K-V Entry" operator must be either an object or an array.');
     });
 
     it('omit', function () {
@@ -555,23 +558,6 @@ describe('jes:processor', function () {
             },
         ];
 
-        should.throws(function () {
-            let transformed = JES.evaluate(1, [
-                {
-                    $select: {
-                        user: {
-                            $gte: 102,
-                        },
-                    },
-                },
-                {
-                    '|>$omit': {
-                        $startWith: ':',
-                    },
-                },
-            ]);
-        }, 'AssertionError: Missing expected exception. ReferenceError: array is not defined');
-
         let transformed = JES.evaluate(array, [
             {
                 $select: {
@@ -588,28 +574,6 @@ describe('jes:processor', function () {
         ]);
 
         transformed.should.be.eql([
-            { id: 3, user: 102, agency: 1 },
-            { id: 4, user: 103, agency: 2 },
-            { id: 5, user: 104, agency: 2 },
-        ]);
-
-        let array_transformed = JES.evaluate(array, [
-            {
-                $select: [
-                    {
-                        user: {
-                            $gte: 102,
-                        },
-                    },
-                ],
-            },
-            {
-                '|>$omit': {
-                    $startWith: ':',
-                },
-            },
-        ]);
-        array_transformed.should.be.eql([
             { id: 3, user: 102, agency: 1 },
             { id: 4, user: 103, agency: 2 },
             { id: 5, user: 104, agency: 2 },
@@ -720,7 +684,7 @@ describe('jes:processor', function () {
 
         jeso.evaluate({
             $if: [
-                { key1: { $gt: 0 } },
+                { key1:  { $match: { $gt: 0 } } },
                 { $set: 'positive' },
                 { $set: 'non-positive' },
             ],
@@ -728,7 +692,7 @@ describe('jes:processor', function () {
 
         jeso.evaluate({
             $if: [
-                { key1: { $gt: 2 } },
+                { key1: { $match: { $gt: 2 } } },
                 { $set: 'positive' },
                 { $set: 'non-positive' },
             ],
@@ -736,20 +700,20 @@ describe('jes:processor', function () {
 
         should.throws(function () {
             jeso.evaluate({
-                $if: { key1: { $gt: 0 } },
+                $if: { key1: { $match: { $gt: 0 } } },
             });
-        }, /The right operand of a "OP_IF" operator must be an array./);
+        }, 'The right operand of a "If Else" operator must be an array.');
 
         should.throws(function () {
             jeso.evaluate({
                 $if: [
-                    { key1: { $gt: 0 } },
+                    { key1: { $match: { $gt: 0 } } },
                     { $set: 'positive' },
                     { $set: 'non-positive' },
                     { key1: { $lt: 2 } },
                 ],
             });
-        }, /The right operand of a "OP_IF" operator must be either a 2-tuple or a 3-tuple./);
+        }, 'The right operand of a "If Else" operator must be either a 2-tuple or a 3-tuple.');
     });
     it('pick', function () {
         let array = null;

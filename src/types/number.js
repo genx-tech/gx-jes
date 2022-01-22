@@ -5,12 +5,7 @@ export default {
 
     alias: ['float'],
 
-    validate: (
-        value,
-        schema,
-        options = { useFieldPath: true, abortEarly: true, throwError: true },
-        context = {}
-    ) => {
+    validate: (value, schema, options = { useFieldPath: true, abortEarly: true, throwError: true }, context = {}) => {
         if (value instanceof Number) {
             value = value.valueOf();
         }

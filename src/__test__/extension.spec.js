@@ -1,5 +1,5 @@
-import JES from '../index';
-import { Types } from '@genx/data';
+import JES from '..';
+const { Types } = require('@genx/data');
 
 describe('jes:extension', function () {  
     it('sanitize', function () {
@@ -48,7 +48,7 @@ describe('jes:extension', function () {
             }
         };
 
-        JES.config.addProcessorToMap([ '$sanitize' ], 'OP_SANITIZE', (left, right) => {
+        JES.config.addTransformerToMap([ 'Sanitize', false, '$sanitize' ], (left, right) => {
             return Types.OBJECT.sanitize(left, { schema: right });
         });
 

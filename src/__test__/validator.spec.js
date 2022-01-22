@@ -1,4 +1,5 @@
-import JES from '../index';
+import JES from '..';
+import '../locale/msg.en-US';
 
 describe('jes:validator', function () {
     it('equal', function () {
@@ -30,13 +31,13 @@ describe('jes:validator', function () {
             key1: 2001,
         });
         result[0].should.not.be.ok();
-        result[1].should.be.match(/ should be 2001/);
+        result[1].should.be.match(/ must be 2001/);
 
         result = JES.match(obj, {
             key2: 'ng',
         });
         result[0].should.not.be.ok();
-        result[1].should.be.match(/ should be "ng"/);
+        result[1].should.be.match(/ must be "ng"/);
     });
 
     it('equal2', function () {
@@ -50,10 +51,13 @@ describe('jes:validator', function () {
             key2: [1],
         })[0].should.be.ok();
 
-        JES.match(obj, {
+        const result = JES.match(obj, {
             key1: [1, 2],
             key2: [1, 3],
-        })[0].should.be.not.ok();
+        });
+        console.log(result);
+
+        result[0].should.be.not.ok();
 
         JES.match(obj, {
             key1: [1, 2],
@@ -105,17 +109,11 @@ describe('jes:validator', function () {
 
         JES.match(obj, {
             key1: { $hasKey: c.a.b },
-        }).should.be.eql([false, '"key1" should have all of these keys [10].']);
+        }).should.be.eql([false, 'key1 must have all of these keys [10].']);
 
         JES.match(obj, {
-            key1: { $in: null },
-        }).should.be.eql([
-            false,
-            '"key1" should be one of null, but 2000 given.',
-        ]);
-        JES.match(obj, {
             key8: { $hasKey: [10] },
-        }).should.be.eql([false, '"key8" should have all of these keys [10].']);
+        }).should.be.eql([false, 'key8 must have all of these keys [10].']);
     });
 
     it('jes', function () {
@@ -170,61 +168,45 @@ describe('jes:validator', function () {
                 },
             });
 
-        const jeso_null = new JES(null);
-        should.throws(() => {
-            jeso_null.match({
-                key1: { $is: 1 },
-            });
-        }, /The value should not be NULL./);
-
-        const jeso_int = new JES('1213121233333312312312423412514325134253');
-        should.throws(() => {
-            jeso_int.match({
-                key1: { $is: 1 },
-            });
-        }, /The type of The value should be "object", but "string" given./);
-
-        should.throws(() => {
-            jeso.match({
-                key1: { $is: 1 },
-            });
-        }, /The right operand of a "OP_TYPE" operator must be a string./);
+        jeso.match({
+            key1: { $is: 'integer' },
+        });
 
         should.throws(() => {
             jeso.match({
                 key1: { $is: 'string' },
             });
-        }, /The type of "key1" should be "string", but 2000 given./);
+        }, 'The value of key1 must be a(n) "text"');
 
         should.throws(() => {
             jeso.match({
-                key4: { $exists: 3000 },
+                key4: { $exists: true },
             });
-        }, /The right operand of a "OP_EXISTS" operator must be a boolean value./);
+        }, 'The right operand of a "Not Null" operator must be a boolean value.');
 
         should.throws(() => {
             jeso.match({
                 key1: { $in: 3000 },
             });
-        }, /The right operand of a "OP_IN" operator must be an array./);
+        }, 'The right operand of a "In" operator must be an array.');
 
         should.throws(() => {
             jeso.match({
                 key1: { $nin: 3000 },
             });
-        }, /The right operand of a "OP_NOT_IN" operator must be an array./);
+        }, 'The right operand of a "Not In" operator must be an array.');
 
         should.throws(() => {
             jeso.match({
                 key1: { $gt: 3000 },
             });
-        }, /"key1" should be greater than 3000/);
+        }, /key1 must be greater than 3000/);
 
         should.throws(() => {
             jeso.match({
                 key1: { $lt: 1000 },
             });
-        }, /"key1" should be less than 1000/);
+        }, /key1 must be less than 1000/);
 
         should.throws(() => {
             jeso.match({
@@ -295,7 +277,7 @@ describe('jes:validator', function () {
             jeso.match({
                 $any: [{ key1: 3000 }, { key11: 3000 }],
             });
-        }, 'ValidationError: The value should match any of these rules: [{"key1":3000},{"key11":3000}].');
+        }, /The value does not match any of given criterias/);
 
         should.throws(() => {
             jeso.match({
@@ -304,149 +286,44 @@ describe('jes:validator', function () {
         }, 'InvalidArgument: The operand of a "OP_MATCH_ANY" operator must be an array.');
     });
 
-    it('matchWithQuery', function () {
-        let obj = {
-            key1: 2000,
-            key11: 2000,
-            key12: 2000,
-            key13: 2000,
-        };
+    it('all match', function () {
+        let objs = [ 1000, 2320, 2333, 4567 ];
 
-        let jeso = new JES(obj);
+        JES.match(objs, {
+            '|>$all': { $gte: 1000 }
+        }).should.be.eql([true]);
 
-        jeso.match({
-            $eval: ['$size', 4],
-            key1: {
-                $eval: ['$type', 'integer'],
-            },
-        });
-        should.throws(() => {
-            jeso.match({
-                $eval: 4,
-                key1: {
-                    $eval: ['$type', 'integer'],
-                },
-            });
-        }, /The right operand of a collection operator "OP_EVAL" must be a two-tuple./);
-
-        jeso.match({
-            $eval: [
-                {
-                    '|>$add': 200,
-                },
-                {
-                    key1: 2200,
-                    key11: 2200,
-                    key12: 2200,
-                    key13: 2200,
-                },
-            ],
-        });
-
-        should.throws(() => {
-            jeso.match({
-                $eval: [
-                    {
-                        '|>$add': 200,
-                    },
-                    obj,
-                ],
-            });
-        }, 'ValidationError: The query "_.each(->add(?)).key1" should be 2000, but 2200 given.');
-
-        let a;
-
-        typeof a === '';
-
-        should.throws(() => {
-            jeso.match({
-                $eval: [
-                    ['$keys', '$size'],
-                    {
-                        $neq: 4,
-                    },
-                ],
-            });
-        }, 'ValidationError: The query "keys().size()" should not be 4, but 4 given.');
-    });
-    it('validateCollection', function () {
-        let obj = {
-            key1: 2000,
-            key11111111111111: 2000,
-            key12: 2000,
-            key13: 2000,
-        };
-
-        let jeso = new JES(obj);
-
-        should.throws(() => {
-            jeso.match({
-                $eval: [
-                    {
-                        '|>$add': 200,
-                    },
-                    {
-                        '|>$add': 200,
-                    },
-                ],
-            });
-        }, 'InvalidArgument: Invalid validation operator "$add".');
-
-        should.throws(() => {
-            jeso.match({
-                $eval: [
-                    {
-                        '|>$add': 200,
-                    },
-                    {
-                        $addd: 200,
-                    },
-                ],
-            });
-        }, 'InvalidArgument: Invalid validation operator "$add".');
-
-        should.throws(() => {
-            jeso.match(null);
-        }, /The value should be null, but {"key1":2000,"key11111111111111":2000,"key12":2000,"key13":2000} given./);
-        //'|>$apply'
+        JES.match(objs, {
+            '|>$all': { $gt: 2000 }
+        }).should.be.eql([false, [
+            'One of the element of the value does not match the requirement(s).',
+            'The value must be greater than 2000.'
+          ]]);        
     });
     it('has', function () {
         let obj = {
             key1: 123,
             key2: 456,
         };
-        const jeso = new JES(obj);
 
         JES.match(obj, {
             key1: { $has: 123 },
             key2: { $has: 456 },
         }).should.be.eql([true]);
     });
-    it('match collection', function () {
+    it('any match', function () {
         let array = [1, 2, 3, 4, -1];
 
         let matched = JES.match(array, {
-            '|*$gt': 0,
+            '|*$match': { $lt: 0 },
         });
         matched.should.be.eql([true]);
 
         let matched3 = JES.match(array, {
-            '|*$gt': 10,
+            '|*$match': { $gt: 10 },
         });
-        matched3.should.be.eql([
-            false,
-            'The value should be greater than 10, but [1,2,3,4,-1] given.',
-        ]);
-        let array2 = [11, 12, 13];
 
-        let matched2 = JES.match(array2, {
-            '|>$gt': 0,
-        }).should.be.eql([true]);
-        let matched4 = JES.match(array2, {
-            '|>$gt': 20,
-        }).should.be.eql([
-            false,
-            '"[0]" should be greater than 20, but 11 given.',
-        ]);
+        matched3.should.be.eql([false, "None of the element of the value matches the requirement(s)."]);
+
     });
 });

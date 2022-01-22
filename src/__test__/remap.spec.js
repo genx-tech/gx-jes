@@ -1,6 +1,6 @@
-import JES from '../index';
+import JES from '..';
 
-describe('jes:processor', function () {
+describe('transform:remap', function () {
  
     it('obj', function () {
         let obj = {

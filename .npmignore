@@ -7,9 +7,9 @@
 jsdoc.json
 babel.config.js
 *.log
-*.md
 test
 examples
+cases
 docs
 coverage
 .nyc_output

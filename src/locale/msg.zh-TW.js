@@ -4,59 +4,48 @@ import vops from '../validateOperators';
 const { formatName } = config.messages;
 
 const messages = {
+    nameOfValue: () => '目標值',
     validationErrors: {
-        [vops.EQUAL]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must be ${JSON.stringify(
-                right
-            )}, but ${JSON.stringify(left)} given.`,
-        [vops.NOT_EQUAL]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must not be ${JSON.stringify(
-                right
-            )}, but ${JSON.stringify(left)} given.`,
-        [vops.NOT]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must not match ${JSON.stringify(
-                right
-            )}, but ${JSON.stringify(left)} given.`,
-        [vops.GREATER_THAN]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} 的長度必須大於 ${right}.`,
-        [vops.GREATER_THAN_OR_EQUAL]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} 的長度不能小於 ${right}.`,
-        [vops.LESS_THAN]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must be less than ${right}.`,
-        [vops.LESS_THAN_OR_EQUAL]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must not exceed ${right}.`,
-        [vops.IN]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must be one of ${JSON.stringify(
-                right
-            )}.`,
-        [vops.NOT_IN]: (name, left, right, prefix) =>
-            `${formatName(
-                name,
-                prefix
-            )} must not be any one of ${JSON.stringify(right)}.`,
-        [vops.EXISTS]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} ${right ? '不能為空' : '必須為空'}。`,
-        [vops.TYPE]: (name, left, right, prefix) =>
-            `The value of ${formatName(name, prefix)} must be a(n) "${right}".`,
-        [vops.MATCH]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must match ${JSON.stringify(
-                right
-            )}, but ${JSON.stringify(left)} given.`,
-        [vops.MATCH_ANY]: (name, left, right, prefix) =>
-            `${formatName(
-                name,
-                prefix
-            )} does not match any of given criterias.`,
-        [vops.HAS_KEYS]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must have all of these keys [${
+        [vops.EQUAL]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的值必須為 ${JSON.stringify(right)}。`,
+        [vops.NOT_EQUAL]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的值不能為 ${JSON.stringify(right)}。`,
+        [vops.NOT]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的值不能為 ${JSON.stringify(right)}。`,
+        [vops.GREATER_THAN]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的長度必須大於 ${right}。`,
+        [vops.GREATER_THAN_OR_EQUAL]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的長度不能小於 ${right}.`,
+        [vops.LESS_THAN]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的長度必須小於 ${right}。`,
+        [vops.LESS_THAN_OR_EQUAL]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的長度不能超過 ${right}。`,
+        [vops.IN]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 必須為 ${JSON.stringify(right)} 其中之一。`,
+        [vops.NOT_IN]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 不能為 ${JSON.stringify(right)} 其中之一。`,
+        [vops.EXISTS]: (name, left, right, context) =>
+            `${formatName(name, left, context)} ${right ? '不能為空' : '必須為空'}。`,
+        [vops.TYPE]: (name, left, right, context) =>
+            `The value of ${formatName(name, left, context)} 必須是 "${right}" 類型.`,
+        [vops.MATCH]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 必須滿足 ${JSON.stringify(right)}。`,
+        [vops.MATCH_ANY]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 不能為 ${JSON.stringify(right)}。`,
+        [vops.ALL_MATCH]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的所有元素中至少一個不符合要求.`,
+        [vops.ANY_ONE_MATCH]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 的所有元素中没有任何一個符合要求.`,
+        [vops.HAS_KEYS]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 必須含有這些鍵 [${
                 Array.isArray(right) ? right.join(', ') : [right]
-            }].`,
-        [vops.START_WITH]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must start with "${right}".`,
-        [vops.END_WITH]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} must end with "${right}".`,
-        [vops.SAME_AS]: (name, left, right, prefix) =>
-            `${formatName(name, prefix)} 與 ${formatName(right)} 不一樣。`,
+            }]。`,
+        [vops.START_WITH]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 必須以 "${right}" 為開頭。`,
+        [vops.END_WITH]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 必須以 "${right}" 為結尾。`,
+        [vops.SAME_AS]: (name, left, right, context) =>
+            `${formatName(name, left, context)} 與 ${formatName(right)} 不一樣。`,
     },
 };
 

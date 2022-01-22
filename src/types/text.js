@@ -5,12 +5,7 @@ export default {
 
     alias: ['string', 'char'],
 
-    validate: (
-        value,
-        schema,
-        options = { useFieldPath: true, abortEarly: true, throwError: true },
-        context = {}
-    ) => {
+    validate: (value, schema, options = { useFieldPath: true, abortEarly: true, throwError: true }, context = {}) => {
         if (value != null && typeof value !== 'string') {
             return invalidType(value, 'text', options, context);
         }

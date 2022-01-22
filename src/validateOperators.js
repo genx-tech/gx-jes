@@ -11,6 +11,8 @@ const NOT_IN = 'Not In';
 const EXISTS = 'Not Null';
 const MATCH = 'Match All';
 const MATCH_ANY = 'Match Any';
+const ALL_MATCH = 'All Match';
+const ANY_ONE_MATCH = 'Any One Match';
 const TYPE = 'Type';
 const HAS_KEYS = 'Has Keys';
 const START_WITH = 'Start With';
@@ -31,6 +33,8 @@ export default {
     EXISTS,
     MATCH,
     MATCH_ANY,
+    ALL_MATCH,
+    ANY_ONE_MATCH,
     TYPE,
     HAS_KEYS,
     START_WITH,

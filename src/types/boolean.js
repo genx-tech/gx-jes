@@ -5,12 +5,7 @@ export default {
 
     alias: ['bool'],
 
-    validate: (
-        value,
-        schema,
-        options = { useFieldPath: true, abortEarly: true, throwError: true },
-        context = {}
-    ) => {
+    validate: (value, schema, options = { useFieldPath: true, abortEarly: true, throwError: true }, context = {}) => {
         if (value instanceof Boolean) {
             value = value.valueOf();
         }

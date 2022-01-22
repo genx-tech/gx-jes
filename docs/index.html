@@ -40,7 +40,7 @@
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#evaluateExpr">evaluateExpr</a></li><li><a href="global.html#match">match</a></li>
+					<li><a href="global.html#applyBinaryOperator">applyBinaryOperator</a></li><li><a href="global.html#applyOperator">applyOperator</a></li><li><a href="global.html#applyUnaryOperator">applyUnaryOperator</a></li><li><a href="global.html#transform">transform</a></li><li><a href="global.html#transformCollection">transformCollection</a></li><li><a href="global.html#validate">validate</a></li>
 				</ul>
 			</li>
 			
@@ -148,6 +148,52 @@ jeso.update({
     },
 ]);
 </code></pre>
+<ul>
+<li><a href="#builtin-validation-operators">Builtin validation operators</a>
+<ul>
+<li><a href="#eq-eql-equal">$eq, $eql, $equal</a></li>
+<li><a href="#ne-neq-notequal">$ne, $neq, $notEqual</a></li>
+<li><a href="#not">$not</a></li>
+<li><a href="#gt-greaterthan">$gt, $&gt;, $greaterThan</a></li>
+<li><a href="#gte-greaterthanorequal">$gte, $&gt;=, $greaterThanOrEqual</a></li>
+<li><a href="#lt-lessthan">$lt, $&lt;, $lessThan</a></li>
+<li><a href="#lte-lessthanorequal">$lte, $&lt;=, $lessThanOrEqual</a></li>
+<li><a href="#in">$in</a></li>
+<li><a href="#nin-notin">$nin, $notIn</a></li>
+<li><a href="#exist-exists-notnull">$exist, $exists, $notNull</a></li>
+<li><a href="#has-match-all">$has, $match, $all</a></li>
+<li><a href="#any-or-either">$any, $or, $either</a></li>
+<li><a href="#is-typeof">$is, $typeOf</a></li>
+<li><a href="#haskey-haskeys-withkey-withkeys">$hasKey, $hasKeys, $withKey, $withKeys</a></li>
+<li><a href="#startwith-startswith">$startWith, $startsWith</a></li>
+<li><a href="#endwith-endswith">$endWith, $endsWith</a></li>
+<li><a href="#eval-apply">$eval, $apply</a></li>
+</ul>
+</li>
+<li><a href="#builtin-processing-operators">Builtin processing operators</a>
+<ul>
+<li><a href="#size-length-count">$size, $length, $count</a></li>
+<li><a href="#sum-total">$sum, $total</a></li>
+<li><a href="#keys">$keys</a></li>
+<li><a href="#values">$values</a></li>
+<li><a href="#type">$type</a></li>
+<li><a href="#add-plus-inc">'$add', '$plus', '$inc'</a></li>
+<li><a href="#sub-subtract-minus-dec">'$sub', '$subtract', '$minus', '$dec'</a></li>
+<li><a href="#mul-multiply-times">'$mul', '$multiply', '$times'</a></li>
+<li><a href="#div-divide">'$div', '$divide'</a></li>
+<li><a href="#set-value">'$set', '$=', '$value'</a></li>
+<li><a href="#additem-override">'$addItem', '$override'</a></li>
+<li><a href="#pick">$pick</a></li>
+<li><a href="#omit">$omit</a></li>
+<li><a href="#at-getbyindex-nth">'$at', '$getByIndex', '$nth'</a></li>
+<li><a href="#of-getbykey">'$of', '$getByKey'</a></li>
+<li><a href="#remap-mapkeys">'$remap', '$mapKeys'</a></li>
+<li><a href="#json-tojson-stringify">'$json', '$toJSON', '$stringify'</a></li>
+<li><a href="#object-parsejson">'$object', '$parseJSON'</a></li>
+</ul>
+</li>
+<li><a href="#license">License</a></li>
+</ul>
 <h2>Builtin validation operators</h2>
 <h3>$eq, $eql, $equal</h3>
 <p>Deep equal comparison</p>
@@ -271,147 +317,139 @@ jeso.update({
 <h2>Builtin processing operators</h2>
 <h3>$size, $length, $count</h3>
 <p>Get the size of array</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $size: [1,2,3,4] });
-//matched: 4, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let array = [1,2,3,4];
+Result = JES.evaluate(array, '$size' );
+//result: 4
+</code></pre>
+<pre class="prettyprint source"><code>let obj = { 'k1': 10, 'k2': 20 };
+Result = JES.evaluate(obj, '$size' );
+//result: 2
+</code></pre>
+<pre class="prettyprint source"><code>let str = 'abcd';
+Result = JES.evaluate(str, '$size' );
+//result: 4
 </code></pre>
 <h3>$sum, $total</h3>
 <p>Get the sum of array</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $size: [1,2,3,4] });
-//matched: 10, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'key1':2000, 'key2':2000 };
+Result = JES.evaluate(obj, '$sum' );
+//result: 4000
+</code></pre>
+<pre class="prettyprint source"><code>let array = [2000, 1000];
+Result = JES.evaluate(array, '$sum' );
+//result: 3000
 </code></pre>
 <h3>$keys</h3>
 <p>Creates an array of the own enumerable property names of <code>object</code>.</p>
-<pre class="prettyprint source"><code>function Foo(){
-    this.a = 1;
-    this.c = 2;
-}
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $keys: new Foo });
-//matched: ['a','c'], unmatchedReason: undefined
-
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $keys: &quot;abcd&quot; });
-//matched: ['0','1','2','3'], unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = { 'id': 1, 'user' : 2 };
+Result = JES.evaluate(obj, '$keys' );
+//result: ['id','user']
 </code></pre>
 <h3>$values</h3>
 <p>Creates an array of the own enumerable string keyed property values of <code>object</code>.</p>
-<pre class="prettyprint source"><code>function Foo(){
-    this.a = 1;
-    this.c = 2;
-}
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $values: new Foo });
-//matched: [1,2], unmatchedReason: undefined
-
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $values: &quot;abcd&quot; });
-//matched: ['a','b','c','d'], unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'id' : 1,'user' : 2};
+Result = JES.evaluate(obj, '$values' );
+//result: [1,2]
 </code></pre>
 <h3>$type</h3>
-<p>Type of</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $type: [1,2,3,4] });
-//matched: 'object', unmatchedReason: undefined
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $type: 1 });
-//matched: 'number', unmatchedReason: undefined
+<p>Evlaute the type of input</p>
+<pre class="prettyprint source"><code>let array = [1,2,3,4];
+Result = JES.evaluate(array, '$type' );
+//result: 'array'
 </code></pre>
 <h3>'$add', '$plus', '$inc'</h3>
 <p>Add</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    1,
-    { $add: 1 });
-//matched: 2, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'key1':2000}
+Result = JES.evaluate(obj, {'$add': 1 });
+//result: {'key1':2001}
 </code></pre>
 <h3>'$sub', '$subtract', '$minus', '$dec'</h3>
 <p>Substact</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    2,
-    { $sub: 1 });
-//matched: 1, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'key1':2};
+Result = JES.evaluate(obj, {'$sub': 1 });
+//result: 1
 </code></pre>
 <h3>'$mul', '$multiply', '$times'</h3>
 <p>Multiply</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    2,
-    { $mul: 1 });
-//matched: 2, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'key1':2000};
+Result = JES.evaluate(obj, {'$mul': 2 });
+//result: {'key1':4000}
 </code></pre>
 <h3>'$div', '$divide'</h3>
 <p>Divide</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    2,
-    { $div: 1 });
-//matched: 2, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'key1':2000};
+Result = JES.evaluate(obj, { '$div': 2 });
+//result: {'key1':1000}
 </code></pre>
 <h3>'$set', '$=', '$value'</h3>
 <p>Set value</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    [1,2,3],
-    { $set: 4 });
-//matched: 4, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'a':1,'b':2};
+Result = JES.evaluate(obj, { '$set': 'new' });
+//result: 'new'
 </code></pre>
 <h3>'$addItem', '$override'</h3>
 <p>Add item</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    [{'a':1,'b':2},{'a':3,'b':4}],
-    { $addItem: ['c', '5'] });
-//matched: [{'a':1,'b':2,'c':5},{'a':3,'b':4,'c':5}], unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'a':1,'b':2};
+Result = JES.evaluate(obj, { '$addItem': ['c', '3'] });
+//result: {'a':1,'b':2,'c':3}
 </code></pre>
 <h3>$pick</h3>
 <p>Creates an object composed of the <code>object</code> properties <code>predicate</code> returns truthy for. The predicate is invoked with two arguments: (value, key).</p>
-<pre class="prettyprint source"><code>function isNumber(value) {
-  return typeof value == 'number' ||
-    (isObjectLike(value) && baseGetTag(value) == numberTag);
-}
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $pick: ({'a':1,'b':'2','c':3},isNumber) });
-//matched: {'a':1,'c':3}, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {'a':1, 'b':2, 'c':3  };
+Result = JES.evaluate(obj,  { '$pick': { $not: [ 'b' ] } ) });
+//result: {'a':1,'c':3}
+</code></pre>
+<pre class="prettyprint source"><code>let obj = {'a':1, 'b':2, 'c':3  };
+Result = JES.evaluate(obj,  { '$pick': [ 'a', 'c' ] ) });
+//result: {'a':1,'c':3}
 </code></pre>
 <h3>$omit</h3>
 <p>The opposite of <code>_.pick</code>; this method creates an object composed of the own and inherited enumerable property paths of <code>object</code> that are not omitted.</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $omit: ({'a':1,'b':'2','c':3},['a','c']) });
-//matched: {'b':2}, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = {a:1,b:2,c:3};
+Result = JES.evaluate(obj, {'$omit': ['a']});
+//result: {'b':2, 'c':3}
 </code></pre>
 <h3>'$at', '$getByIndex', '$nth'</h3>
 <p>Gets the element at index <code>n</code> of <code>array</code>. If <code>n</code> is negative, the nth element from the end is returned.</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $at: ([0,1,2,3,4,5],1) });
-//matched: 1, unmatchedReason: undefined
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $at: ([0,1,2,3,4,5],-1) });
-//matched: 5, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let array = [0,1,2,3,4,5];
+Result = JES.evaluate(array, {'$at': 1});
+//result: 1
+Result = JES.evaluate(obj,  {'$at': -1});
+//result: 5
 </code></pre>
 <h3>'$of', '$getByKey'</h3>
 <p>Gets the value at <code>path</code> of <code>object</code>. If the resolved value is <code>undefined</code>, the <code>defaultValue</code> is returned in its place.</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $of: ({ 'a': [{ 'b': { 'c': 3 } }] },['a', '0', 'b', 'c']) });
-//matched: 3, unmatchedReason: undefined
-const [ matched, unmatchedReason ] = JES.evaluate(
-    { $of: ({ 'a': [{ 'b': { 'c': 3 } }] },a.b.c,DEFAULT_VALUE) });
-//matched: DEFAULT_VALUE, unmatchedReason: undefined
+<pre class="prettyprint source"><code>obj = {'a':1, 'b':2, 'c':3 };
+Result = JES.evaluate(obj, {'$of': 'a'} );
+//result: 1
 </code></pre>
 <h3>'$remap', '$mapKeys'</h3>
-<p>remap the name of object</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { x: 5, y: 6, z: 7 },
-    { $remap: x: 'a' });
-//matched: {a:5}, unmatchedReason: undefined
+<p>remap the keys of an object</p>
+<pre class="prettyprint source"><code>let obj = { 'id': 1, 'user':100, 'agency': 1 };
+result = JES.evaluate(obj, {'$remap':{user:'username'}});
+//result: {'id': 1, 'username':100, 'agency': 1}
+</code></pre>
+<pre class="prettyprint source"><code>let array = [{ 'id': 1, 'user':100, 'agency': 1 }];
+result = JES.evaluate(array, {'|>$remap':{user:'username'}});
+//result: [{'id': 1, 'username':100, 'agency': 1}]
 </code></pre>
 <h3>'$json', '$toJSON', '$stringify'</h3>
 <p>Stringify the value (from Object to JSON).</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $json: { x: 5, y: 6 } });
-//matched: '{'x':5,'y':6}', unmatchedReason: undefined
+<pre class="prettyprint source"><code>let obj = { 'x': 5, 'y': 6 };
+result = JES.evaluate(obj, '$json');
+//result: '{&quot;x&quot;:5,&quot;y&quot;:6}'
 </code></pre>
 <h3>'$object', '$parseJSON'</h3>
 <p>Parse the value into object (from JSON to Object).</p>
-<pre class="prettyprint source"><code>const [ matched, unmatchedReason ] = JES.evaluate(
-    { $object: '{'result':true, 'count':42}' });
-//matched: { result: true, count: 42 }, unmatchedReason: undefined
+<pre class="prettyprint source"><code>let json = '{&quot;result&quot;:true}';
+result = JES.evaluate(json,'$object' );
+//result: { 'result': true }
+</code></pre>
+<h3>'$toArray'</h3>
+<p>Parse the object into array.</p>
+<pre class="prettyprint source"><code>let obj = {'user':100};
+result = JES.evaluate({ obj , '$toArray'});
+//result: [ {'user':100   }  ]
 </code></pre>
 <h2>License</h2>
 <p>MIT</p></article>
@@ -462,7 +500,7 @@ const [ matched, unmatchedReason ] = JES.evaluate(
 	</span>
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a>
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

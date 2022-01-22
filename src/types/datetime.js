@@ -7,12 +7,7 @@ export default {
 
     alias: ['date', 'time', 'timestamp'],
 
-    validate: (
-        value,
-        schema,
-        options = { useFieldPath: true, abortEarly: true, throwError: true },
-        context = {}
-    ) => {
+    validate: (value, schema, options = { useFieldPath: true, abortEarly: true, throwError: true }, context = {}) => {
         if (value != null && (!isDate(value) || isNaN(value.getTime()))) {
             return invalidType(value, 'datetime', options, context);
         }

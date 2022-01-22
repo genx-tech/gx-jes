@@ -38,7 +38,7 @@ export default {
             const errors = [];
 
             _find(value, (fieldValue, i) => {
-                const path = messages.formatPrefix(i, context.path);
+                const path = messages.makePath(i, context.path);
                 const reason = validate(fieldValue, itemSchema, options, {
                     name: null,
                     path,

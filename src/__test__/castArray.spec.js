@@ -1,7 +1,6 @@
-import should from 'should';
-import JES from '../index';
+import JES from '..';
 
-describe('jes:castArray', function () {
+describe('transformer:castArray', function () {
     it('obj', function () {
         let obj = {
             'id': 1,

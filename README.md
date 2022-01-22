@@ -1,5 +1,3 @@
-
-
 # @genx/jes
 
 JSON Expression Syntax (JES)
@@ -69,53 +67,44 @@ jeso.evaluate([
 ]);
 ```
 
-
-- [Builtin validation operators](#builtin-validation-operators)
-  * [$eq, $eql, $equal](#eq-eql-equal)
-  * [$ne, $neq, $notEqual](#ne-neq-notequal)
-  * [$not](#not)
-  * [$gt, $>, $greaterThan](#gt-greaterthan)
-  * [$gte, $>=, $greaterThanOrEqual](#gte-greaterthanorequal)
-  * [$lt, $<, $lessThan](#lt-lessthan)
-  * [$lte, $<=, $lessThanOrEqual](#lte-lessthanorequal)
-  * [$in](#in)
-  * [$nin, $notIn](#nin-notin)
-  * [$exist, $exists, $notNull](#exist-exists-notnull)
-  * [$has, $match, $all](#has-match-all)
-  * [$any, $or, $either](#any-or-either)
-  * [$is, $typeOf](#is-typeof)
-  * [$hasKey, $hasKeys, $withKey, $withKeys](#haskey-haskeys-withkey-withkeys)
-  * [$startWith, $startsWith](#startwith-startswith)
-  * [$endWith, $endsWith](#endwith-endswith)
-  * [$eval, $apply](#eval-apply)
-- [Builtin processing operators](#builtin-processing-operators)
-  * [$size, $length, $count](#size-length-count)
-  * [$sum, $total](#sum-total)
-  * [$keys](#keys)
-  * [$values](#values)
-  * [$type](#type)
-  * ['$add', '$plus', '$inc'](#add-plus-inc)
-  * ['$sub', '$subtract', '$minus', '$dec'](#sub-subtract-minus-dec)
-  * ['$mul', '$multiply', '$times'](#mul-multiply-times)
-  * ['$div', '$divide'](#div-divide)
-  * ['$set', '$=', '$value'](#set-value)
-  * ['$addItem', '$override'](#additem-override)
-  * [$pick](#pick)
-  * [$omit](#omit)
-  * ['$at', '$getByIndex', '$nth'](#at-getbyindex-nth)
-  * ['$of', '$getByKey'](#of-getbykey)
-  * ['$remap', '$mapKeys'](#remap-mapkeys)
-  * ['$json', '$toJSON', '$stringify'](#json-tojson-stringify)
-  * ['$object', '$parseJSON'](#object-parsejson)
-- [License](#license)
-
-
-
-
-
-
-
-
+-   [Builtin validation operators](#builtin-validation-operators)
+    -   [$eq, $eql, $equal](#eq-eql-equal)
+    -   [$ne, $neq, $notEqual](#ne-neq-notequal)
+    -   [$not](#not)
+    -   [$gt, $>, $greaterThan](#gt-greaterthan)
+    -   [$gte, $>=, $greaterThanOrEqual](#gte-greaterthanorequal)
+    -   [$lt, $<, $lessThan](#lt-lessthan)
+    -   [$lte, $<=, $lessThanOrEqual](#lte-lessthanorequal)
+    -   [$in](#in)
+    -   [$nin, $notIn](#nin-notin)
+    -   [$exist, $exists, $notNull](#exist-exists-notnull)
+    -   [$has, $match, $all](#has-match-all)
+    -   [$any, $or, $either](#any-or-either)
+    -   [$is, $typeOf](#is-typeof)
+    -   [$hasKey, $hasKeys, $withKey, $withKeys](#haskey-haskeys-withkey-withkeys)
+    -   [$startWith, $startsWith](#startwith-startswith)
+    -   [$endWith, $endsWith](#endwith-endswith)
+    -   [$eval, $apply](#eval-apply)
+-   [Builtin processing operators](#builtin-processing-operators)
+    -   [$size, $length, $count](#size-length-count)
+    -   [$sum, $total](#sum-total)
+    -   [$keys](#keys)
+    -   [$values](#values)
+    -   [$type](#type)
+    -   ['$add', '$plus', '$inc'](#add-plus-inc)
+    -   ['$sub', '$subtract', '$minus', '$dec'](#sub-subtract-minus-dec)
+    -   ['$mul', '$multiply', '$times'](#mul-multiply-times)
+    -   ['$div', '$divide'](#div-divide)
+    -   ['$set', '$=', '$value'](#set-value)
+    -   ['$addItem', '$override'](#additem-override)
+    -   [$pick](#pick)
+    -   [$omit](#omit)
+    -   ['$at', '$getByIndex', '$nth'](#at-getbyindex-nth)
+    -   ['$of', '$getByKey'](#of-getbykey)
+    -   ['$remap', '$mapKeys'](#remap-mapkeys)
+    -   ['$json', '$toJSON', '$stringify'](#json-tojson-stringify)
+    -   ['$object', '$parseJSON'](#object-parsejson)
+-   [License](#license)
 
 ## Builtin validation operators
 
@@ -330,8 +319,6 @@ Result = JES.evaluate(str, '$size' );
 //result: 4
 ```
 
-
-
 ### $sum, $total
 
 Get the sum of array
@@ -348,12 +335,11 @@ Result = JES.evaluate(array, '$sum' );
 //result: 3000
 ```
 
-
 ### $keys
 
 Creates an array of the own enumerable property names of `object`.
 
-``` 
+```
 let obj = { 'id': 1, 'user' : 2 };
 Result = JES.evaluate(obj, '$keys' );
 //result: ['id','user']
@@ -455,8 +441,6 @@ Result = JES.evaluate(obj,  { '$pick': [ 'a', 'c' ] ) });
 //result: {'a':1,'c':3}
 ```
 
-
-
 ### $omit
 
 The opposite of `_.pick`; this method creates an object composed of the own and inherited enumerable property paths of `object` that are not omitted.
@@ -499,7 +483,6 @@ result = JES.evaluate(obj, {'$remap':{user:'username'}});
 //result: {'id': 1, 'username':100, 'agency': 1}
 ```
 
-
 ```
 let array = [{ 'id': 1, 'user':100, 'agency': 1 }];
 result = JES.evaluate(array, {'|>$remap':{user:'username'}});
@@ -526,7 +509,6 @@ result = JES.evaluate(json,'$object' );
 //result: { 'result': true }
 ```
 
-
 ### '$toArray'
 
 Parse the object into array.
@@ -536,11 +518,6 @@ let obj = {'user':100};
 result = JES.evaluate({ obj , '$toArray'});
 //result: [ {'user':100   }  ]
 ```
-
-
-
-
-
 
 ## License
 

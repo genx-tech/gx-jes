@@ -73,11 +73,12 @@
         }
     },
     "dependencies": {
-        "@genx/error": "^1.1.2",
-        "@genx/july": "^0.3.2"
+        "@genx/error": "*",
+        "@genx/july": "*"
     },
     "devDependencies": {
         "@babel/cli": "^7.15.7",
+        "@babel/eslint-parser": "^7.16.5",
         "@babel/register": "^7.15.3",
         "@commitlint/config-conventional": "^11.0.0",
         "@genx/app": "*",

@@ -21,3 +21,4 @@ src/**/__test__
 .prettierignore
 rollup.config.js
 jsconfig.json
+src

@@ -1,6 +1,6 @@
 {
     "name": "@genx/jes",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "description": "JSON Expression Syntax (JES)",
     "main": "lib/index.js",
     "module": "lib/index.js",
@@ -59,6 +59,7 @@
     "devDependencies": {
         "@babel/cli": "^7.18.9",
         "@babel/core": "^7.18.9",
+        "@babel/preset-env": "^7.18.9",
         "@babel/register": "^7.18.9",
         "@commitlint/config-conventional": "^11.0.0",
         "@genx/app": "^2.0.0",

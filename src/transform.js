@@ -55,7 +55,7 @@ function applyUnaryOperator(value, tag, context) {
  * @param {*} rightValue
  * @param {*} opMeta
  * @param {*} context
- * @returns
+ * @returns {*}
  */
 function applyOperator(currentValue, rightValue, [op, isUnary], context) {
     if (isUnary) {
@@ -75,7 +75,7 @@ function applyOperator(currentValue, rightValue, [op, isUnary], context) {
  * @param {*} opMeta
  * @param {*} expectedFieldValue
  * @param {*} context
- * @returns
+ * @returns {*}
  */
 function transformCollection(currentValue, collectionOp, opMeta, expectedFieldValue, context) {
     const isUnary = opMeta[1];
@@ -124,6 +124,7 @@ function transformCollection(currentValue, collectionOp, opMeta, expectedFieldVa
  * @param {*} expr
  * @param {*} context
  * @param {boolean} replaceLeft - Whether the expression will replace the left value chain,like a setOp
+ * @return {*}
  */
 function transform(currentValue, expr, context, replaceLeft) {
     if (expr == null) {

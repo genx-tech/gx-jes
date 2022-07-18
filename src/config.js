@@ -73,7 +73,8 @@ const config = {
     dump: () => {
         console.log(Object.keys(validatorHandlers));
     },
-    dev: process.env.NODE_ENV === 'development',
+    // eslint-disable-next-line no-undef
+    dev: process?.env.NODE_ENV === 'development',
     messages,
     addValidatorToMap: (tokens, handler) => {
         const [tag, ...alias] = tokens;

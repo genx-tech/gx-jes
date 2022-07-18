@@ -4,6 +4,7 @@
 .gitignore
 .gitattributes
 .travis.yml
+pnpm-lock.yml
 jsdoc.json
 babel.config.js
 .mocharc.js  

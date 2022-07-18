@@ -54,7 +54,7 @@ config.addValidatorToMap(OP_IN, (left, right, options, context) => {
     }
 
     if (typeof right === 'string' || isPlainObject(right)) {
-        right = transform(undefined, right, context, true)
+        right = transform(undefined, right, context, true);
     }
 
     if (!Array.isArray(right)) {

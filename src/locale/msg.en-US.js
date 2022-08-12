@@ -26,6 +26,7 @@ const messages = {
             `${formatName(name, left, context)} must not be any one of ${JSON.stringify(right)}.`,
         [vops.EXISTS]: (name, left, right, context) =>
             `${formatName(name, left, context)} ${right ? 'must not be null' : 'must be null'}.`,
+        [vops.REQUIRED]: (name, left, right, context) => `${formatName(name, left, context)} is required.`,
         [vops.TYPE]: (name, left, right, context) =>
             `The value of ${formatName(name, left, context)} must be a(n) "${right}".`,
         [vops.MATCH]: (name, left, right, context) =>

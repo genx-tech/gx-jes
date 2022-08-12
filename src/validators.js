@@ -15,6 +15,9 @@ import transform from './transform';
 
 const MSG = config.messages;
 
+const processRightValue = (right, context) =>
+    typeof right === 'string' || isPlainObject(right) ? transform(undefined, right, context, true) : right;
+
 //Validators [ name, ...operator alias ]
 const OP_EQUAL = [ops.EQUAL, '$eq', '$eql', '$equal', '$being'];
 const OP_NOT_EQUAL = [ops.NOT_EQUAL, '$ne', '$neq', '$notEqual'];
@@ -26,7 +29,8 @@ const OP_LESS_THAN_OR_EQUAL = [ops.LESS_THAN_OR_EQUAL, '$lte', '$<=', '$lessThan
 const OP_LENGTH = [ops.LENGTH, '$length', '$size', '$capacity'];
 const OP_IN = [ops.IN, '$in'];
 const OP_NOT_IN = [ops.NOT_IN, '$nin', '$notIn'];
-const OP_EXISTS = [ops.EXISTS, '$exist', '$exists', '$notNull', '$required'];
+const OP_EXISTS = [ops.EXISTS, '$exist', '$exists', '$notNull'];
+const OP_REQUIRED = [ops.REQUIRED, '$required', '$mandatory'];
 const OP_MATCH = [ops.MATCH, '$has', '$match', '$all'];
 const OP_MATCH_ANY = [ops.MATCH_ANY, '$any', '$or', '$either'];
 const OP_ALL_MATCH = [ops.ALL_MATCH, '$allMatch', '|>$all', '|>$match'];
@@ -37,13 +41,24 @@ const OP_START_WITH = [ops.START_WITH, '$startWith', '$startsWith'];
 const OP_END_WITH = [ops.END_WITH, '$endWith', '$endsWith'];
 const OP_SAME_AS = [ops.SAME_AS, '$sameAs'];
 
-config.addValidatorToMap(OP_EQUAL, (left, right) => _isEqual(left, right));
-config.addValidatorToMap(OP_NOT_EQUAL, (left, right) => !_isEqual(left, right));
+config.addValidatorToMap(OP_EQUAL, (left, right, options, context) =>
+    _isEqual(left, processRightValue(right, context))
+);
+config.addValidatorToMap(
+    OP_NOT_EQUAL,
+    (left, right, options, context) => !_isEqual(left, processRightValue(right, context))
+);
 config.addValidatorToMap(OP_NOT, (left, ...args) => !test(left, ops.MATCH, ...args));
-config.addValidatorToMap(OP_GREATER_THAN, (left, right) => left > right);
-config.addValidatorToMap(OP_GREATER_THAN_OR_EQUAL, (left, right) => left >= right);
-config.addValidatorToMap(OP_LESS_THAN, (left, right) => left < right);
-config.addValidatorToMap(OP_LESS_THAN_OR_EQUAL, (left, right) => left <= right);
+config.addValidatorToMap(OP_GREATER_THAN, (left, right, options, context) => left > processRightValue(right, context));
+config.addValidatorToMap(
+    OP_GREATER_THAN_OR_EQUAL,
+    (left, right, options, context) => left >= processRightValue(right, context)
+);
+config.addValidatorToMap(OP_LESS_THAN, (left, right, options, context) => left < processRightValue(right, context));
+config.addValidatorToMap(
+    OP_LESS_THAN_OR_EQUAL,
+    (left, right, options, context) => left <= processRightValue(right, context)
+);
 config.addValidatorToMap(OP_LENGTH, (left, right, options, context) =>
     test(_size(left), ops.MATCH, right, options, context)
 );
@@ -53,9 +68,7 @@ config.addValidatorToMap(OP_IN, (left, right, options, context) => {
         return false;
     }
 
-    if (typeof right === 'string' || isPlainObject(right)) {
-        right = transform(undefined, right, context, true);
-    }
+    right = processRightValue(right, context);
 
     if (!Array.isArray(right)) {
         throw new Error(MSG.OPERAND_NOT_ARRAY(ops.IN));
@@ -65,10 +78,13 @@ config.addValidatorToMap(OP_IN, (left, right, options, context) => {
     return right.find((element) => equal(left, element));
 });
 
-config.addValidatorToMap(OP_NOT_IN, (left, right) => {
+config.addValidatorToMap(OP_NOT_IN, (left, right, options, context) => {
     if (right == null) {
         return true;
     }
+
+    right = processRightValue(right, context);
+
     if (!Array.isArray(right)) {
         throw new Error(MSG.OPERAND_NOT_ARRAY(ops.NOT_IN));
     }
@@ -84,6 +100,14 @@ config.addValidatorToMap(OP_EXISTS, (left, right) => {
     }
 
     return right ? left != null : left == null;
+});
+
+config.addValidatorToMap(OP_REQUIRED, (left, right) => {
+    if (typeof right !== 'boolean') {
+        throw new Error(MSG.OPERAND_NOT_BOOL(ops.OP_REQUIRED));
+    }
+
+    return right ? left != null : true;
 });
 
 config.addValidatorToMap(OP_MATCH, (left, right, options, context) => {
@@ -240,10 +264,13 @@ config.addValidatorToMap(OP_HAS_KEYS, (left, right) => {
     return Array.isArray(right) ? right.every((key) => _has(left, key)) : _has(left, right);
 });
 
-config.addValidatorToMap(OP_START_WITH, (left, right) => {
+config.addValidatorToMap(OP_START_WITH, (left, right, options, context) => {
     if (typeof left !== 'string') {
         return false;
     }
+
+    right = processRightValue(right, context);
+
     if (typeof right !== 'string') {
         throw new Error(MSG.OPERAND_NOT_STRING(ops.START_WITH));
     }
@@ -251,10 +278,13 @@ config.addValidatorToMap(OP_START_WITH, (left, right) => {
     return left.startsWith(right);
 });
 
-config.addValidatorToMap(OP_END_WITH, (left, right) => {
+config.addValidatorToMap(OP_END_WITH, (left, right, options, context) => {
     if (typeof left !== 'string') {
         return false;
     }
+
+    right = processRightValue(right, context);
+
     if (typeof right !== 'string') {
         throw new Error(MSG.OPERAND_NOT_STRING(ops.END_WITH));
     }

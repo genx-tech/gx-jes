@@ -9,6 +9,7 @@ const LENGTH = 'Length Or Size';
 const IN = 'In';
 const NOT_IN = 'Not In';
 const EXISTS = 'Not Null';
+const REQUIRED = 'Required';
 const MATCH = 'Match All';
 const MATCH_ANY = 'Match Any';
 const ALL_MATCH = 'All Match';
@@ -31,6 +32,7 @@ export default {
     IN,
     NOT_IN,
     EXISTS,
+    REQUIRED,
     MATCH,
     MATCH_ANY,
     ALL_MATCH,

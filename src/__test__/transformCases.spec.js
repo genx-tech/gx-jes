@@ -168,19 +168,22 @@ describe('transformer:cases', function () {
         const result = JES.evaluate(obj, {
             activeIndex: {
                 $if: [
-                    [ "$$ROOT", {
-                        $match: {
-                            $any: [
-                                {
-                                    propertyType: 'all',
-                                },
-                                {
-                                    propertyType: 'project',
-                                    projectId: { $exists: false },
-                                },
-                            ],
+                    [
+                        '$$ROOT',
+                        {
+                            $match: {
+                                $any: [
+                                    {
+                                        propertyType: 'all',
+                                    },
+                                    {
+                                        propertyType: 'project',
+                                        projectId: { $exists: false },
+                                    },
+                                ],
+                            },
                         },
-                    }],
+                    ],
                     {
                         $set: 0,
                     },
@@ -200,19 +203,22 @@ describe('transformer:cases', function () {
         const result = JES.evaluate(obj, {
             activeIndex: {
                 $if: [
-                    [ "$$ROOT", {
-                        $match: {
-                            $any: [
-                                {
-                                    propertyType: 'all',
-                                },
-                                {
-                                    propertyType: 'project',
-                                    projectId: { $exists: false },
-                                },
-                            ],
+                    [
+                        '$$ROOT',
+                        {
+                            $match: {
+                                $any: [
+                                    {
+                                        propertyType: 'all',
+                                    },
+                                    {
+                                        propertyType: 'project',
+                                        projectId: { $exists: false },
+                                    },
+                                ],
+                            },
                         },
-                    }],
+                    ],
                     {
                         $set: 0,
                     },
@@ -224,5 +230,104 @@ describe('transformer:cases', function () {
         });
 
         result.activeIndex.should.be.exactly(1);
+    });
+
+    it('case 7.1 - compare', function () {
+        const obj = { selectedCount: 4, totalCount: 4 };
+
+        const result = JES.evaluate(obj, {
+            $override: {
+                value: [
+                    '$$PARENT.selectedCount',
+                    {
+                        $match: {
+                            $eq: '$$PARENT.totalCount',
+                        },
+                    },
+                ],
+                indeterminate: [
+                    '$$PARENT.selectedCount',
+                    {
+                        $match: {
+                            $lt: '$$PARENT.totalCount',
+                            $ne: 0,
+                        },
+                    },
+                ],
+            },
+        });
+
+        result.should.be.eql({
+            selectedCount: 4,
+            totalCount: 4,
+            value: true,
+            indeterminate: false,
+        });
+    });
+
+    it('case 7.2 - compare', function () {
+        const obj = { selectedCount: 2, totalCount: 4 };
+
+        const result = JES.evaluate(obj, {
+            $override: {
+                value: [
+                    '$$PARENT.selectedCount',
+                    {
+                        $match: {
+                            $eq: '$$PARENT.totalCount',
+                        },
+                    },
+                ],
+                indeterminate: [
+                    '$$PARENT.selectedCount',
+                    {
+                        $match: {
+                            $lt: '$$PARENT.totalCount',
+                            $ne: 0,
+                        },
+                    },
+                ],
+            },
+        });
+
+        result.should.be.eql({
+            selectedCount: 2,
+            totalCount: 4,
+            value: false,
+            indeterminate: true,
+        });
+    });
+
+    it('case 7.3 - compare', function () {
+        const obj = { selectedCount: 0, totalCount: 4 };
+
+        const result = JES.evaluate(obj, {
+            $override: {
+                value: [
+                    '$$PARENT.selectedCount',
+                    {
+                        $match: {
+                            $eq: '$$PARENT.totalCount',
+                        },
+                    },
+                ],
+                indeterminate: [
+                    '$$PARENT.selectedCount',
+                    {
+                        $match: {
+                            $lt: '$$PARENT.totalCount',
+                            $ne: 0,
+                        },
+                    },
+                ],
+            },
+        });
+
+        result.should.be.eql({
+            selectedCount: 0,
+            totalCount: 4,
+            value: false,
+            indeterminate: false,
+        });
     });
 });

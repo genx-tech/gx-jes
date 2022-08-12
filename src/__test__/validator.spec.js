@@ -65,6 +65,22 @@ describe('jes:validator', function () {
         })[0].should.be.not.ok();
     });
 
+    it('required', function () {
+        let obj = {
+            a: 10,
+            b: 20
+        };
+
+        JES.match(obj, {
+            a: { $required: true },
+            c: { $required: false },
+        }).should.be.eql([true]);
+
+        JES.match(obj, {
+            c: { $required: true },
+        }).should.be.eql([false, 'c is required.']);
+    });
+
     it('mixed', function () {
         var c = { a: { b: 10 } };
         let obj = {

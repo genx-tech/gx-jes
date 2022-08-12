@@ -26,6 +26,7 @@ const messages = {
             `${formatName(name, left, context)} 不能為 ${JSON.stringify(right)} 其中之一。`,
         [vops.EXISTS]: (name, left, right, context) =>
             `${formatName(name, left, context)} ${right ? '不能為空' : '必須為空'}。`,
+        [vops.REQUIRED]: (name, left, right, context) => `${formatName(name, left, context)} 是必填項。`,
         [vops.TYPE]: (name, left, right, context) =>
             `The value of ${formatName(name, left, context)} 必須是 "${right}" 類型.`,
         [vops.MATCH]: (name, left, right, context) =>
@@ -33,17 +34,16 @@ const messages = {
         [vops.MATCH_ANY]: (name, left, right, context) =>
             `${formatName(name, left, context)} 不能為 ${JSON.stringify(right)}。`,
         [vops.ALL_MATCH]: (name, left, right, context) =>
-            `${formatName(name, left, context)} 的所有元素中至少一個不符合要求.`,
+            `${formatName(name, left, context)} 的所有項中至少一個不符合要求。`,
         [vops.ANY_ONE_MATCH]: (name, left, right, context) =>
-            `${formatName(name, left, context)} 的所有元素中没有任何一個符合要求.`,
+            `${formatName(name, left, context)} 的所有項中没有任何一個符合要求。`,
         [vops.HAS_KEYS]: (name, left, right, context) =>
-            `${formatName(name, left, context)} 必須含有這些鍵 [${
+            `${formatName(name, left, context)} 必須包含這些鍵 [${
                 Array.isArray(right) ? right.join(', ') : [right]
             }]。`,
         [vops.START_WITH]: (name, left, right, context) =>
-            `${formatName(name, left, context)} 必須以 "${right}" 為開頭。`,
-        [vops.END_WITH]: (name, left, right, context) =>
-            `${formatName(name, left, context)} 必須以 "${right}" 為結尾。`,
+            `${formatName(name, left, context)} 必須以 "${right}" 開頭。`,
+        [vops.END_WITH]: (name, left, right, context) => `${formatName(name, left, context)} 必須以 "${right}" 結尾。`,
         [vops.SAME_AS]: (name, left, right, context) =>
             `${formatName(name, left, context)} 與 ${formatName(right)} 不一樣。`,
     },

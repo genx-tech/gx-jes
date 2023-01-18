@@ -1,5 +1,6 @@
 # .npmignore 
 
+.husky
 .babelrc
 .gitignore
 .gitattributes

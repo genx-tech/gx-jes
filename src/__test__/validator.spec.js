@@ -316,15 +316,15 @@ describe('jes:validator', function () {
             'The value must be greater than 2000.'
           ]]);        
     });
-    it('has', function () {
+    it('should', function () {
         let obj = {
             key1: 123,
             key2: 456,
         };
 
         JES.match(obj, {
-            key1: { $has: 123 },
-            key2: { $has: 456 },
+            key1: { $should: { $eq: 123 } },
+            key2: { $should: { $eq: 456 } },
         }).should.be.eql([true]);
     });
     it('any match', function () {

@@ -1,7 +1,7 @@
 import JES from '..';
 
 describe('transformer:cases', function () {
-    it('case 1.1', function () {
+    it('case 1.1 - if else', function () {
         const objB = {
             value: '',
             enableShowTextForPrice: true,
@@ -330,4 +330,22 @@ describe('transformer:cases', function () {
             indeterminate: false,
         });
     });
+
+    it('case 8.1 - filter by value', function () {
+        const obj = {
+            a: true,
+            b: true,
+            c: true,
+            d: false
+        };
+
+        const result = JES.evaluate(obj, [
+            {
+                "$filterByValue": { $eq: true }
+            },
+            '$size'
+        ]);
+        
+        result.should.be.eql(3);
+    } );
 });

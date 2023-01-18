@@ -54,6 +54,10 @@ function validate(actual, expectedJES, options = { throwError: true, abortEarly:
             throw new Error(MSG.SYNTAX_INVALID_EXPR(expectedJES));
         }
 
+        if (expectedJES.startsWith('$$')) {
+            return validate(actual, { $equal: expectedJES }, options, context); 
+        }
+
         return validate(actual, { [expectedJES]: null }, options, context);
     }
 
@@ -63,12 +67,16 @@ function validate(actual, expectedJES, options = { throwError: true, abortEarly:
         return true;
     }
 
+    if (type !== 'object') {
+        throw new Error(MSG.SYNTAX_INVALID_EXPR(expectedJES));
+    }
+
     let { path } = context;
     const errors = [];
     const _options = !abortEarly && throwError ? { ...options, throwError: false } : options;
 
     for (let operator in expectedJES) {
-        let op, left, _context;
+        let op, left, _context; 
 
         const opValue = expectedJES[operator];
 

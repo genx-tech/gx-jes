@@ -348,4 +348,28 @@ describe('transformer:cases', function () {
         
         result.should.be.eql(3);
     } );
+
+    it('case 9.1 - adjust obj structure', function () {
+        const obj = {
+            key1: "value1",
+            key2: "value2",
+            key3: "value3",
+            key4: {
+                key5: "value5",
+            }
+        };
+
+        const result = JES.evaluate(obj, {
+            $assign: {
+                key3: undefined,
+                key4: '$$CURRENT.key5'
+            }
+        });
+        
+        result.should.be.eql({
+            key1: "value1",
+            key2: "value2",
+            key4: "value5"
+        });
+    } );
 });

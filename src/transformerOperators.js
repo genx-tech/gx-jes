@@ -23,6 +23,7 @@ const KEYS = 'Keys Of';
 const VALUES = 'Values Of';
 const ENTRIES = 'Entries Of';
 const OBJ_TO_ARRAY = 'Object To Array'; // like $objectToArray of mongodb
+const FILTER_NULL = 'Filter Null Values';
 const PICK = 'Pick By'; // filter by key
 const OMIT = 'Omit By';
 const SLICE = 'Slice'; // limit offset, count
@@ -42,6 +43,7 @@ const ADD_ITEM = 'Add K-V Entry';
 const ASSIGN = 'Assign';
 const APPLY = 'Apply Transformation';
 
+const SPLIT = 'Split';
 const INTERPOLATE = 'Interpolate';
 
 //Colllection modifier
@@ -70,6 +72,7 @@ export default {
     VALUES,
     ENTRIES,
     OBJ_TO_ARRAY,
+    FILTER_NULL,
     PICK, // filter by key
     OMIT,
     SLICE,
@@ -88,6 +91,7 @@ export default {
     ASSIGN,
     APPLY,
 
+    SPLIT,
     INTERPOLATE,
 
     MAP,

@@ -123,7 +123,7 @@ function transformCollection(currentValue, collectionOp, opMeta, expectedFieldVa
  * @param {*} currentValue
  * @param {*} expr
  * @param {*} context
- * @param {boolean} replaceLeft - Whether the expression will replace the left value chain,like a setOp
+ * @param {boolean} replaceLeft - Whether the expression will replace the left value chain, like a setOp
  * @return {*}
  */
 function transform(currentValue, expr, context, replaceLeft) {

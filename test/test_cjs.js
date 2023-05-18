@@ -1,3 +1,3 @@
-const JES = require('../lib/commonjs');
+const JES = require('..');
 
 console.log(Object.keys(JES));

@@ -59,7 +59,7 @@ function applyUnaryOperator(value, tag, context) {
  */
 function applyOperator(currentValue, rightValue, [op, isUnary], context) {
     if (isUnary) {
-        if (config.dev && !_isEmpty(rightValue)) {
+        if (!_isEmpty(rightValue)) {
             throw new Error(MSG.RIGHT_OPERAND_NOT_EMPTY(op));
         }
         return applyUnaryOperator(currentValue, op, context);

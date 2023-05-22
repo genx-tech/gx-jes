@@ -70,11 +70,6 @@ export const messages = {
 
 //JSON Expression Syntax Runtime Configuration
 const config = {
-    dump: () => {
-        console.log(Object.keys(validatorHandlers));
-    },
-    // eslint-disable-next-line no-undef
-    dev: process?.env.NODE_ENV === 'development',
     messages,
     addValidatorToMap: (tokens, handler) => {
         const [tag, ...alias] = tokens;
